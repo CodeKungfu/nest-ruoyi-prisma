@@ -10,5 +10,6 @@ async function bootstrap() {
   await app.listen(SERVER_PORT, '0.0.0.0');
   const serverUrl = await app.getUrl();
   Logger.log(`api服务已经启动,请访问: ${serverUrl}`);
+  Logger.log(`swagger ui 接口文档,请访问: ${serverUrl}/swagger-api`);
 }
 bootstrap();
