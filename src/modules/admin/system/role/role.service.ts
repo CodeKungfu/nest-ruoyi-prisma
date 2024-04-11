@@ -289,7 +289,7 @@ export class SysRoleService {
     });
     if (!isEmpty(result)) {
       return map(result, (v) => {
-        return v.roleId;
+        return Number(v.role_id);
       });
     }
     return [];

@@ -42,6 +42,17 @@ export class AccountController {
     );
   }
 
+  @ApiOperation({ summary: '获取管理员资料' })
+  @ApiOkResponse({ type: AccountInfo })
+  @PermissionOptional()
+  @Get('getInfo')
+  async getInfo(
+    @AdminUser() user: IAdminUser,
+    @Req() req: FastifyRequest,
+  ): Promise<any> {
+    return await this.userService.getInfo(user.uid, this.utils.getReqIP(req));
+  }
+
   @ApiOperation({ summary: '更改管理员资料' })
   @PermissionOptional()
   @Post('update')
@@ -75,5 +86,13 @@ export class AccountController {
   @Get('permmenu')
   async permmenu(@AdminUser() user: IAdminUser): Promise<PermMenuInfo> {
     return await this.loginService.getPermMenu(user.uid);
+  }
+
+  @ApiOperation({ summary: '获取菜单列表及权限列表' })
+  @ApiOkResponse({ type: PermMenuInfo })
+  @PermissionOptional()
+  @Get('getRouters')
+  async getRouters(@AdminUser() user: IAdminUser): Promise<any> {
+    return await this.loginService.getRouters(Number(user.uid));
   }
 }

@@ -33,7 +33,7 @@ export class SysUserService {
   async findUserByUserName(username: string): Promise<sys_user | undefined> {
     return await prisma.sys_user.findFirst({
       where: {
-        user_name: username,
+        login_name: username,
         status: '1',
       },
     });
@@ -64,6 +64,35 @@ export class SysUserService {
       remark: user.remark,
       headImg: user.avatar,
       loginIp: ip,
+    };
+  }
+
+  /**
+   * 获取用户信息
+   * @param uid user id
+   * @param ip login ip
+   */
+  async getInfo(uid: number, ip?: string): Promise<any> {
+    const user: sys_user = await prisma.sys_user.findUnique({
+      where: {
+        user_id: uid,
+      },
+    });
+    if (isEmpty(user)) {
+      throw new ApiException(10017);
+    }
+    return {
+      permissions: ['*:*:*'],
+      roles: ['admin'],
+      user: {
+        name: user.user_name,
+        nickName: user.user_name,
+        email: user.email,
+        phone: user.phonenumber,
+        remark: user.remark,
+        headImg: user.avatar,
+        loginIp: ip,
+      },
     };
   }
 

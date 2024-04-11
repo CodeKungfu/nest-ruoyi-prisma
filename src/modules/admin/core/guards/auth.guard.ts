@@ -35,11 +35,12 @@ export class AuthGuard implements CanActivate {
     const request = context.switchToHttp().getRequest<FastifyRequest>();
     const url = request.url;
     const path = url.split('?')[0];
-    const token = request.headers['authorization'] as string;
+    let token = request.headers['authorization'] as string;
     if (isEmpty(token)) {
       throw new ApiException(11001);
     }
     try {
+      token = token.split(' ').pop();
       // 挂载对象到当前请求上
       request[ADMIN_USER] = this.jwtService.verify(token);
     } catch (e) {
