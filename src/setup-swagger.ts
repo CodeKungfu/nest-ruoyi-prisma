@@ -2,6 +2,8 @@ import { INestApplication } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
+import { ADMIN_PREFIX } from './modules/admin/admin.constants';
+
 export function setupSwagger(app: INestApplication): void {
   const configService: ConfigService = app.get(ConfigService);
 
@@ -18,7 +20,7 @@ export function setupSwagger(app: INestApplication): void {
     .setDescription(configService.get<string>('swagger.desc'))
     .setLicense('MIT', 'https://github.com/CodeKungfu/nest-ruoyi-prisma')
     // JWT鉴权
-    .addSecurity('admin', {
+    .addSecurity(ADMIN_PREFIX, {
       description: '后台管理接口授权',
       type: 'apiKey',
       in: 'header',
