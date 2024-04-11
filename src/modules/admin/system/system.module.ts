@@ -28,6 +28,9 @@ import { SysParamConfigService } from './param-config/param-config.service';
 import { SysServeController } from './serve/serve.controller';
 import { SysServeService } from './serve/serve.service';
 
+import * as dictController from './dict/controller';
+import * as dictService from './dict/service';
+
 @Module({
   imports: [
     BullModule.registerQueueAsync({
@@ -56,6 +59,7 @@ import { SysServeService } from './serve/serve.service';
     SysOnlineController,
     SysParamConfigController,
     SysServeController,
+    dictController.MyController,
   ],
   providers: [
     rootRoleIdProvider(),
@@ -69,6 +73,7 @@ import { SysServeService } from './serve/serve.service';
     SysOnlineService,
     SysParamConfigService,
     SysServeService,
+    dictService.Service,
   ],
   exports: [
     ROOT_ROLE_ID,

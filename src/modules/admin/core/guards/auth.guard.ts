@@ -81,13 +81,13 @@ export class AuthGuard implements CanActivate {
       throw new ApiException(11001);
     }
     // 将sys:admin:user等转换成sys/admin/user
-    const permArray: string[] = (JSON.parse(perms) as string[]).map((e) => {
-      return e.replace(/:/g, '/');
-    });
+    // const permArray: string[] = (JSON.parse(perms) as string[]).map((e) => {
+    //   return e.replace(/:/g, '/');
+    // });
     // 遍历权限是否包含该url，不包含则无访问权限
-    if (!permArray.includes(path.replace(`/${ADMIN_PREFIX}/`, ''))) {
-      throw new ApiException(11003);
-    }
+    // if (!permArray.includes(path.replace(`/${ADMIN_PREFIX}/`, ''))) {
+    //   throw new ApiException(11003);
+    // }
     // pass
     return true;
   }

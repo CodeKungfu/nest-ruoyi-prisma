@@ -16,8 +16,8 @@ import { SystemModule } from './system/system.module';
       {
         path: ADMIN_PREFIX,
         children: [
-          { path: 'account', module: AccountModule },
-          { path: 'sys', module: SystemModule },
+          { path: '', module: AccountModule },
+          { path: 'system', module: SystemModule },
         ],
       },
       // like this url /admin/captcha/img

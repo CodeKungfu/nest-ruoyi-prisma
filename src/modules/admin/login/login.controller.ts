@@ -25,7 +25,7 @@ export class LoginController {
     summary: '获取登录图片验证码',
   })
   @ApiOkResponse({ type: ImageCaptcha })
-  @Get('captcha/img')
+  @Get('captchaImage')
   @Authorize()
   async captchaByImg(@Query() dto: ImageCaptchaDto): Promise<ImageCaptcha> {
     return await this.loginService.createImageCaptcha(dto);
