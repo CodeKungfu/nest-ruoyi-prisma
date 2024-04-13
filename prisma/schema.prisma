@@ -59,15 +59,15 @@ model gen_table_column {
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model sys_config {
-  config_id    Int       @id @default(autoincrement())
-  config_name  String?   @default("") @db.VarChar(100)
-  config_key   String?   @default("") @db.VarChar(100)
-  config_value String?   @default("") @db.VarChar(500)
-  config_type  String?   @default("N") @db.Char(1)
-  create_by    String?   @default("") @db.VarChar(64)
-  create_time  DateTime? @db.DateTime(0)
-  update_by    String?   @default("") @db.VarChar(64)
-  update_time  DateTime? @db.DateTime(0)
+  configId    Int       @id @default(autoincrement()) @map("config_id")
+  configName  String?   @default("") @db.VarChar(100) @map("config_name")
+  configKey   String?   @default("") @db.VarChar(100) @map("config_key")
+  configValue String?   @default("") @db.VarChar(500) @map("config_value")
+  configType  String?   @default("N") @db.Char(1) @map("config_type")
+  createBy    String?   @default("") @db.VarChar(64) @map("create_by")
+  createTime  DateTime? @db.DateTime(0) @map("create_time")
+  updateBy    String?   @default("") @db.VarChar(64) @map("update_by")
+  updateTime  DateTime? @db.DateTime(0) @map("update_time")
   remark       String?   @db.VarChar(500)
 }
 

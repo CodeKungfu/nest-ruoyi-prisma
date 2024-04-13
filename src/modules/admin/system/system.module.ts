@@ -23,8 +23,6 @@ import { SysTaskService } from './task/task.service';
 import { SysTaskConsumer } from './task/task.processor';
 import { SysOnlineController } from './online/online.controller';
 import { SysOnlineService } from './online/online.service';
-import { SysParamConfigController } from './param-config/param-config.controller';
-import { SysParamConfigService } from './param-config/param-config.service';
 import { SysServeController } from './serve/serve.controller';
 import { SysServeService } from './serve/serve.service';
 
@@ -33,6 +31,9 @@ import * as dictService from './dict/service';
 
 import * as dictDataController from './dictData/controller';
 import * as dictDataService from './dictData/service';
+
+import * as configController from './config/controller';
+import * as configService from './config/service';
 
 @Module({
   imports: [
@@ -60,10 +61,10 @@ import * as dictDataService from './dictData/service';
     SysLogController,
     SysTaskController,
     SysOnlineController,
-    SysParamConfigController,
     SysServeController,
     dictController.MyController,
     dictDataController.MyController,
+    configController.MyController,
   ],
   providers: [
     rootRoleIdProvider(),
@@ -75,10 +76,10 @@ import * as dictDataService from './dictData/service';
     SysTaskService,
     SysTaskConsumer,
     SysOnlineService,
-    SysParamConfigService,
     SysServeService,
     dictService.Service,
-    dictDataService.Service
+    dictDataService.Service,
+    configService.Service,
   ],
   exports: [
     ROOT_ROLE_ID,

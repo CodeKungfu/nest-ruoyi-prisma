@@ -6,7 +6,7 @@ import { UtilService } from 'src/shared/services/util.service';
 import { ROOT_ROLE_ID } from 'src/modules/admin/admin.constants';
 import { RedisService } from 'src/shared/services/redis.service';
 import { SYS_USER_INITPASSWORD } from 'src/common/contants/param-config.contants';
-import { SysParamConfigService } from '../param-config/param-config.service';
+// import { SysParamConfigService } from '../param-config/param-config.service';
 import { AccountInfo, PageSearchUserInfo } from './user.class';
 import {
   CreateUserDto,
@@ -22,7 +22,7 @@ import { sys_user } from '@prisma/client';
 export class SysUserService {
   constructor(
     private redisService: RedisService,
-    private paramConfigService: SysParamConfigService,
+    // private paramConfigService: SysParamConfigService,
     @Inject(ROOT_ROLE_ID) private rootRoleId: number,
     private util: UtilService,
   ) {}
@@ -175,9 +175,10 @@ export class SysUserService {
     await prisma.$transaction(async (prisma) => {
       const salt = await this.util.generateRandomValue(32);
       // 查找配置的初始密码
-      const initPassword = await this.paramConfigService.findValueByKey(
-        SYS_USER_INITPASSWORD,
-      );
+      // const initPassword = await this.paramConfigService.findValueByKey(
+      //   SYS_USER_INITPASSWORD,
+      // );
+      const initPassword = '';
       const password = this.util.md5(`${initPassword ?? '123456'}${salt}`);
       const result = await prisma.sys_user.create({
         data: {
