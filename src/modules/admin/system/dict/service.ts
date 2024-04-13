@@ -54,4 +54,40 @@ export class Service {
     });
     return result;
   }
+
+  /**
+   * 根据获取信息
+   */
+  async delete(id: number): Promise<tableType> {
+    const resultInfo: tableType = await prisma[tableName].delete({
+      where: {
+        dictId: id,
+      },
+    });
+    return resultInfo;
+  }
+
+  /**
+   * 更新信息
+   */
+  async update(body: any): Promise<tableType> {
+    const updateObj = omit(body, ['dictId', 'createTime']);
+    const resultInfo: tableType = await prisma[tableName].update({
+      data: updateObj,
+      where: {
+        dictId: body.dictId,
+      },
+    });
+    return resultInfo;
+  }
+
+  /**
+   * 新增信息
+   */
+  async create(body: any): Promise<any> {
+    const resultInfo: tableType = await prisma[tableName].create({
+      data: body,
+    });
+    return resultInfo;
+  }
 }

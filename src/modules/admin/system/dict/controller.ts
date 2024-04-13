@@ -1,4 +1,13 @@
-import { Body, Controller, Get, Post, Query, Param } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  Query,
+  Param,
+  Delete,
+  Put,
+} from '@nestjs/common';
 import {
   ApiOperation,
   ApiOkResponse,
@@ -39,6 +48,30 @@ export class MyController {
     return {
       ...list,
     };
+  }
+
+  @ApiOperation({ summary: `查询${keyStr}` })
+  @ApiOkResponse()
+  @Delete(':id')
+  async delete(@Param() params: any): Promise<any> {
+    const list = await this.service.delete(params.id);
+    return list;
+  }
+
+  @ApiOperation({ summary: `查询${keyStr}` })
+  @ApiOkResponse()
+  @Put()
+  async update(@Body() body: any): Promise<any> {
+    const list = await this.service.update(body);
+    return list;
+  }
+
+  @ApiOperation({ summary: `查询${keyStr}` })
+  @ApiOkResponse()
+  @Post()
+  async create(@Body() body: any): Promise<any> {
+    const list = await this.service.create(body);
+    return list;
   }
 
   @ApiOperation({ summary: `查询${keyStr}` })

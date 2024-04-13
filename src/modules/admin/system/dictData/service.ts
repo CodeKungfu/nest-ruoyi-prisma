@@ -50,6 +50,18 @@ export class Service {
   }
 
   /**
+   * 根据获取信息
+   */
+  async delete(id: number): Promise<tableType> {
+    const resultInfo: tableType = await prisma[tableName].delete({
+      where: {
+        dictCode: id,
+      },
+    });
+    return resultInfo;
+  }
+
+  /**
    * 更新信息
    */
   async update(body: any): Promise<tableType> {
@@ -59,6 +71,16 @@ export class Service {
       where: {
         dictCode: body.dictCode,
       },
+    });
+    return resultInfo;
+  }
+
+  /**
+   * 新增信息
+   */
+  async create(body: any): Promise<any> {
+    const resultInfo: tableType = await prisma[tableName].create({
+      data: body,
     });
     return resultInfo;
   }
