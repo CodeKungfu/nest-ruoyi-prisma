@@ -91,19 +91,19 @@ model sys_dept {
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model sys_dict_data {
-  dict_code   BigInt    @id @default(autoincrement())
-  dict_sort   Int?      @default(0)
-  dict_label  String?   @default("") @db.VarChar(100)
-  dict_value  String?   @default("") @db.VarChar(100)
-  dict_type   String?   @default("") @db.VarChar(100)
-  css_class   String?   @db.VarChar(100)
-  list_class  String?   @db.VarChar(100)
-  is_default  String?   @default("N") @db.Char(1)
+  dictCode   BigInt    @id @default(autoincrement()) @map("dict_code")
+  dictSort   Int?      @default(0) @map("dict_sort")
+  dictLabel  String?   @default("") @db.VarChar(100) @map("dict_label")
+  dictValue  String?   @default("") @db.VarChar(100) @map("dict_value")
+  dictType   String?   @default("") @db.VarChar(100) @map("dict_type")
+  cssClass   String?   @db.VarChar(100) @map("css_class")
+  listClass  String?   @db.VarChar(100) @map("list_class")
+  isDefault  String?   @default("N") @db.Char(1) @map("is_default")
   status      String?   @default("0") @db.Char(1)
-  create_by   String?   @default("") @db.VarChar(64)
-  create_time DateTime? @db.DateTime(0)
-  update_by   String?   @default("") @db.VarChar(64)
-  update_time DateTime? @db.DateTime(0)
+  createBy   String?   @default("") @db.VarChar(64) @map("create_by")
+  createTime DateTime? @db.DateTime(0) @map("create_time")
+  updateBy   String?   @default("") @db.VarChar(64) @map("update_by")
+  updateTime DateTime? @db.DateTime(0) @map("update_time")
   remark      String?   @db.VarChar(500)
 }
 

@@ -24,11 +24,15 @@ export class Service {
     return await prisma[tableName].count();
   }
 
+  async optionselect(): Promise<any> {
+    const resultInfo: any = await prisma[tableName].findMany();
+    return resultInfo;
+  }
   /**
    * 根据获取信息
    */
   async info(id: string): Promise<tableType> {
-    const resultInfo: tableType = await prisma[tableName].findUnique({
+    const resultInfo: tableType = await prisma[tableName].findFirst({
       where: {
         dictId: Number(id),
       },
