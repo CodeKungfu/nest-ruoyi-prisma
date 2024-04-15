@@ -189,15 +189,15 @@ model sys_menu {
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model sys_notice {
-  notice_id      Int       @id @default(autoincrement())
-  notice_title   String    @db.VarChar(50)
-  notice_type    String    @db.Char(1)
-  notice_content String?   @db.VarChar(2000)
+  noticeId      Int       @id @default(autoincrement()) @map("notice_id")
+  noticeTitle   String    @db.VarChar(50) @map("notice_title")
+  noticeType    String    @db.Char(1) @map("notice_type")
+  noticeContent String?   @db.VarChar(2000) @map("notice_content")
   status         String?   @default("0") @db.Char(1)
-  create_by      String?   @default("") @db.VarChar(64)
-  create_time    DateTime? @db.DateTime(0)
-  update_by      String?   @default("") @db.VarChar(64)
-  update_time    DateTime? @db.DateTime(0)
+  createBy      String?   @default("") @db.VarChar(64) @map("create_by")
+  createTime    DateTime? @db.DateTime(0) @map("create_time")
+  updateBy      String?   @default("") @db.VarChar(64) @map("update_by")
+  updateTime    DateTime? @db.DateTime(0) @map("update_time")
   remark         String?   @db.VarChar(255)
 }
 
