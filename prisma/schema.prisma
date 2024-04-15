@@ -300,16 +300,16 @@ model sys_user {
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model sys_user_online {
   sessionId        String    @id @default("") @db.VarChar(50)
-  login_name       String?   @default("") @db.VarChar(50)
-  dept_name        String?   @default("") @db.VarChar(50)
+  loginName       String?   @default("") @db.VarChar(50) @map("login_name")
+  deptName        String?   @default("") @db.VarChar(50) @map("dept_name")
   ipaddr           String?   @default("") @db.VarChar(128)
-  login_location   String?   @default("") @db.VarChar(255)
+  loginLocation   String?   @default("") @db.VarChar(255) @map("login_location")
   browser          String?   @default("") @db.VarChar(50)
   os               String?   @default("") @db.VarChar(50)
   status           String?   @default("") @db.VarChar(10)
-  start_timestamp  DateTime? @db.DateTime(0)
-  last_access_time DateTime? @db.DateTime(0)
-  expire_time      Int?      @default(0)
+  startTimestamp  DateTime? @db.DateTime(0) @map("start_timestamp")
+  lastAccessTime DateTime? @db.DateTime(0) @map("last_access_time")
+  expireTime      Int?      @default(0) @map("expire_time")
 }
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments

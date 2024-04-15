@@ -15,6 +15,9 @@ import * as operlogService from './operlog/service';
 import * as logininforController from './logininfor/controller';
 import * as logininforService from './logininfor/service';
 
+import * as onlineController from './online/controller';
+import * as onlineService from './online/service';
+
 @Module({
   imports: [
     BullModule.registerQueueAsync({
@@ -37,7 +40,7 @@ import * as logininforService from './logininfor/service';
     // dictController.MyController,
     // dictDataController.MyController,
     // configController.MyController,
-    // noticeController.MyController,
+    onlineController.MyController,
     logininforController.MyController,
     operlogController.MyController,
   ],
@@ -46,7 +49,7 @@ import * as logininforService from './logininfor/service';
     // dictService.Service,
     // dictDataService.Service,
     // configService.Service,
-    // noticeService.Service,
+    onlineService.Service,
     logininforService.Service,
     operlogService.Service,
   ],
