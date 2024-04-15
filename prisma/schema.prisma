@@ -228,15 +228,15 @@ model sys_oper_log {
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model sys_post {
-  post_id     BigInt    @id @default(autoincrement())
-  post_code   String    @db.VarChar(64)
-  post_name   String    @db.VarChar(50)
-  post_sort   Int
+  postId     BigInt    @id @default(autoincrement()) @map("post_id")
+  postCode   String    @db.VarChar(64) @map("post_code")
+  postName   String    @db.VarChar(50) @map("post_name")
+  postSort   Int @map("post_sort")
   status      String    @db.Char(1)
-  create_by   String?   @default("") @db.VarChar(64)
-  create_time DateTime? @db.DateTime(0)
-  update_by   String?   @default("") @db.VarChar(64)
-  update_time DateTime? @db.DateTime(0)
+  createBy   String?   @default("") @db.VarChar(64) @map("create_by")
+  createTime DateTime? @db.DateTime(0) @map("create_time")
+  updateBy   String?   @default("") @db.VarChar(64) @map("update_by")
+  updateTime DateTime? @db.DateTime(0) @map("update_time")
   remark      String?   @db.VarChar(500)
 }
 

@@ -38,6 +38,9 @@ import * as configService from './config/service';
 import * as noticeController from './notice/controller';
 import * as noticeService from './notice/service';
 
+import * as postController from './post/controller';
+import * as postService from './post/service';
+
 @Module({
   imports: [
     BullModule.registerQueueAsync({
@@ -69,6 +72,7 @@ import * as noticeService from './notice/service';
     dictDataController.MyController,
     configController.MyController,
     noticeController.MyController,
+    postController.MyController,
   ],
   providers: [
     rootRoleIdProvider(),
@@ -85,6 +89,7 @@ import * as noticeService from './notice/service';
     dictDataService.Service,
     configService.Service,
     noticeService.Service,
+    postService.Service,
   ],
   exports: [
     ROOT_ROLE_ID,
