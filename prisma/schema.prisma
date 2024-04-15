@@ -122,21 +122,21 @@ model sys_dict_type {
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model sys_job {
-  job_id          BigInt    @default(autoincrement())
-  job_name        String    @default("") @db.VarChar(64)
-  job_group       String    @default("DEFAULT") @db.VarChar(64)
-  invoke_target   String    @db.VarChar(500)
-  cron_expression String?   @default("") @db.VarChar(255)
-  misfire_policy  String?   @default("3") @db.VarChar(20)
+  jobId          BigInt    @default(autoincrement()) @map("job_id")
+  jobName        String    @default("") @db.VarChar(64) @map("job_name")
+  jobGroup       String    @default("DEFAULT") @db.VarChar(64) @map("job_group")
+  invokeTarget   String    @db.VarChar(500) @map("invoke_target")
+  cronExpression String?   @default("") @db.VarChar(255) @map("cron_expression")
+  misfirePolicy  String?   @default("3") @db.VarChar(20) @map("misfire_policy")
   concurrent      String?   @default("1") @db.Char(1)
   status          String?   @default("0") @db.Char(1)
-  create_by       String?   @default("") @db.VarChar(64)
-  create_time     DateTime? @db.DateTime(0)
-  update_by       String?   @default("") @db.VarChar(64)
-  update_time     DateTime? @db.DateTime(0)
+  createBy       String?   @default("") @db.VarChar(64) @map("create_by")
+  createTime     DateTime? @db.DateTime(0) @map("create_time")
+  updateBy       String?   @default("") @db.VarChar(64) @map("update_by")
+  updateTime     DateTime? @db.DateTime(0) @map("update_time")
   remark          String?   @default("") @db.VarChar(500)
 
-  @@id([job_id, job_name, job_group])
+  @@id([jobId, jobName, jobGroup])
 }
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments

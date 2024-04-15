@@ -82,7 +82,7 @@ export class SysTaskService implements OnModuleInit {
   async page(page: number, count: number): Promise<sys_job[]> {
     const result = await prisma.sys_job.findMany({
       orderBy: {
-        job_id: 'asc',
+        jobId: 'asc',
       },
       take: count,
       skip: page * count,
@@ -103,7 +103,7 @@ export class SysTaskService implements OnModuleInit {
   async info(id: number): Promise<sys_job> {
     return await prisma.sys_job.findFirst({
       where: {
-        job_id: Number(id),
+        jobId: Number(id),
       },
     });
   }
@@ -118,7 +118,7 @@ export class SysTaskService implements OnModuleInit {
     await this.stop(task);
     await prisma.sys_job.deleteMany({
       where: {
-        job_id: task.job_id,
+        jobId: task.jobId,
       },
     });
   }
@@ -150,7 +150,7 @@ export class SysTaskService implements OnModuleInit {
     if (id) {
       result = await prisma.sys_job.updateMany({
         data: param,
-        where: { job_id: id },
+        where: { jobId: id },
       });
     } else {
       result = await prisma.sys_job.create({
@@ -232,14 +232,14 @@ export class SysTaskService implements OnModuleInit {
     if (!task) {
       throw new Error('Task is Empty');
     }
-    const exist = await this.existJob(task.job_id.toString());
+    const exist = await this.existJob(task.jobId.toString());
     if (!exist) {
       await prisma.sys_job.updateMany({
         data: {
           status: '0',
         },
         where: {
-          job_id: task.job_id,
+          jobId: task.jobId,
         },
       });
       return;
@@ -253,7 +253,7 @@ export class SysTaskService implements OnModuleInit {
       'completed',
     ]);
     for (let i = 0; i < jobs.length; i++) {
-      if (jobs[i].data.id === task.job_id) {
+      if (jobs[i].data.id === task.jobId) {
         await jobs[i].remove();
       }
     }
@@ -262,7 +262,7 @@ export class SysTaskService implements OnModuleInit {
         status: '0',
       },
       where: {
-        job_id: task.job_id,
+        jobId: task.jobId,
       },
     });
     // if (task.jobOpts) {
@@ -291,7 +291,7 @@ export class SysTaskService implements OnModuleInit {
     const jobs = await this.taskQueue.getRepeatableJobs();
     const task = await prisma.sys_job.findFirst({
       where: {
-        job_id: tid,
+        jobId: tid,
       },
     });
     // 如果下次执行时间小于当前时间，则表示已经执行完成。

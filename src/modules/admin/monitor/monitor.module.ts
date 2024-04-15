@@ -18,6 +18,9 @@ import * as logininforService from './logininfor/service';
 import * as onlineController from './online/controller';
 import * as onlineService from './online/service';
 
+import * as jobController from './job/controller';
+import * as jobService from './job/service';
+
 @Module({
   imports: [
     BullModule.registerQueueAsync({
@@ -39,7 +42,7 @@ import * as onlineService from './online/service';
   controllers: [
     // dictController.MyController,
     // dictDataController.MyController,
-    // configController.MyController,
+    jobController.MyController,
     onlineController.MyController,
     logininforController.MyController,
     operlogController.MyController,
@@ -48,7 +51,7 @@ import * as onlineService from './online/service';
     rootRoleIdProvider(),
     // dictService.Service,
     // dictDataService.Service,
-    // configService.Service,
+    jobService.Service,
     onlineService.Service,
     logininforService.Service,
     operlogService.Service,
