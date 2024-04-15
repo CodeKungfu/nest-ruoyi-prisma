@@ -141,29 +141,29 @@ model sys_job {
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model sys_job_log {
-  job_log_id     BigInt    @id @default(autoincrement())
-  job_name       String    @db.VarChar(64)
-  job_group      String    @db.VarChar(64)
-  invoke_target  String    @db.VarChar(500)
-  job_message    String?   @db.VarChar(500)
+  jobLogId     BigInt    @id @default(autoincrement()) @map("job_log_id")
+  jobName       String    @db.VarChar(64) @map("job_name")
+  jobGroup      String    @db.VarChar(64) @map("job_group")
+  invokeTarget  String    @db.VarChar(500) @map("invoke_target")
+  jobMessage    String?   @db.VarChar(500) @map("job_message")
   status         String?   @default("0") @db.Char(1)
-  exception_info String?   @default("") @db.VarChar(2000)
-  create_time    DateTime? @db.DateTime(0)
+  exceptionInfo String?   @default("") @db.VarChar(2000) @map("exception_info")
+  createTime    DateTime? @db.DateTime(0) @map("create_time")
 }
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model sys_logininfor {
-  info_id        BigInt    @id @default(autoincrement())
-  login_name     String?   @default("") @db.VarChar(50)
+  infoId        BigInt    @id @default(autoincrement()) @map("info_id")
+  loginName     String?   @default("") @db.VarChar(50) @map("login_name")
   ipaddr         String?   @default("") @db.VarChar(128)
-  login_location String?   @default("") @db.VarChar(255)
+  loginLocation String?   @default("") @db.VarChar(255) @map("login_location")
   browser        String?   @default("") @db.VarChar(50)
   os             String?   @default("") @db.VarChar(50)
   status         String?   @default("0") @db.Char(1)
   msg            String?   @default("") @db.VarChar(255)
-  login_time     DateTime? @db.DateTime(0)
+  loginTime     DateTime? @db.DateTime(0) @map("login_time")
 
-  @@index([login_time], map: "idx_sys_logininfor_lt")
+  @@index([loginTime], map: "idx_sys_logininfor_lt")
   @@index([status], map: "idx_sys_logininfor_s")
 }
 
