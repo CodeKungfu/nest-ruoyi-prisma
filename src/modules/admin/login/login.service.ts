@@ -7,7 +7,7 @@ import { ApiException } from 'src/common/exceptions/api.exception';
 import { RedisService } from 'src/shared/services/redis.service';
 import { SysLogService } from '../system/log/log.service';
 import { SysUserService } from '../system/user/user.service';
-import { SysMenuService } from '../system/menu/menu.service';
+import { SysMenuService } from '../system/menuBack/menu.service';
 import { ImageCaptchaDto } from './login.dto';
 import { ImageCaptcha, PermMenuInfo } from './login.class';
 
@@ -125,8 +125,8 @@ export class LoginService {
     const menus = [];
     menus_1.forEach((item) => {
       const temp = Object.assign({}, item, {
-        menu_id: Number(item.menu_id),
-        parent_id: Number(item.parent_id),
+        menu_id: Number(item.menuId),
+        parent_id: Number(item.parentId),
       });
       menus.push(temp);
     });

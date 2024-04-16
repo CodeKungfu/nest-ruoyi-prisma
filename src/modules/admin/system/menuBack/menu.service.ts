@@ -37,7 +37,7 @@ export class SysMenuService {
       await prisma.sys_menu.update({
         data: menu,
         where: {
-          menu_id: menuId,
+          menuId: menuId,
         },
       });
     } else {
@@ -81,7 +81,7 @@ export class SysMenuService {
       if (isEmpty(parent)) {
         throw new ApiException(10014);
       }
-      if (parent && parent.menu_type === '1') {
+      if (parent && parent.menuType === '1') {
         // 当前新增为菜单但父节点也为菜单时为非法操作
         throw new ApiException(10006);
       }
@@ -96,13 +96,13 @@ export class SysMenuService {
       // });
       const menus = await prisma.sys_menu.findMany({
         where: {
-          parent_id: Object.is(dto.parentId, -1) ? null : dto.parentId,
+          parentId: Object.is(dto.parentId, -1) ? null : dto.parentId,
         },
       });
       const router = dto.router.split('/').filter(Boolean).join('/');
       const pathReg = new RegExp(`^/?${router}/?$`);
       const isExist = menus.some(
-        (n) => pathReg.test(n.perms) && Number(n.menu_id) !== dto.menuId,
+        (n) => pathReg.test(n.perms) && Number(n.menuId) !== dto.menuId,
       );
       if (isExist) {
         // 同级菜单路由不能重复
@@ -118,7 +118,7 @@ export class SysMenuService {
     const allMenus: any = [];
     const menus = await prisma.sys_menu.findMany({
       where: {
-        parent_id: mid,
+        parentId: mid,
       },
     });
     // if (_.isEmpty(menus)) {
@@ -126,12 +126,12 @@ export class SysMenuService {
     // }
     // const childMenus: any = [];
     for (let i = 0; i < menus.length; i++) {
-      if (menus[i].menu_type !== '2') {
+      if (menus[i].menuType !== '2') {
         // 子目录下是菜单或目录，继续往下级查找
-        const c = await this.findChildMenus(Number(menus[i].menu_id));
+        const c = await this.findChildMenus(Number(menus[i].menuId));
         allMenus.push(c);
       }
-      allMenus.push(menus[i].menu_id);
+      allMenus.push(menus[i].menuId);
     }
     return allMenus;
   }
@@ -143,7 +143,7 @@ export class SysMenuService {
   async getMenuItemInfo(mid: number): Promise<sys_menu> {
     const menu = await prisma.sys_menu.findUnique({
       where: {
-        menu_id: mid,
+        menuId: mid,
       },
     });
     return menu;
@@ -157,14 +157,14 @@ export class SysMenuService {
   ): Promise<MenuItemAndParentInfoResult> {
     const menu = await prisma.sys_menu.findUnique({
       where: {
-        menu_id: mid,
+        menuId: mid,
       },
     });
     let parentMenu: sys_menu | undefined = undefined;
-    if (menu && menu.parent_id) {
+    if (menu && menu.parentId) {
       parentMenu = await prisma.sys_menu.findUnique({
         where: {
-          menu_id: menu.parent_id,
+          menuId: menu.parentId,
         },
       });
     }
@@ -197,7 +197,7 @@ export class SysMenuService {
           perms: {
             not: null,
           },
-          menu_type: '2',
+          menuType: '2',
         },
       });
     } else {
@@ -232,7 +232,7 @@ export class SysMenuService {
   async deleteMenuItem(mids: number[]): Promise<void> {
     await prisma.sys_menu.deleteMany({
       where: {
-        menu_id: {
+        menuId: {
           in: mids,
         },
       },

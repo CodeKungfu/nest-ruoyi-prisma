@@ -9,7 +9,7 @@ import {
 import { ADMIN_PREFIX } from '../../admin.constants';
 import { IAdminUser } from '../../admin.interface';
 import { AdminUser } from '../../core/decorators/admin-user.decorator';
-import { SysMenuService } from '../menu/menu.service';
+import { SysMenuService } from '../menuBack/menu.service';
 import {
   CreateUserDto,
   DeleteUserDto,

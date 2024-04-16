@@ -12,8 +12,8 @@ import { SysDeptController } from './deptBack/dept.controller';
 import { SysDeptService } from './deptBack/dept.service';
 import { SysLogController } from './log/log.controller';
 import { SysLogService } from './log/log.service';
-import { SysMenuController } from './menu/menu.controller';
-import { SysMenuService } from './menu/menu.service';
+import { SysMenuController } from './menuBack/menu.controller';
+import { SysMenuService } from './menuBack/menu.service';
 import { SysRoleController } from './role/role.controller';
 import { SysRoleService } from './role/role.service';
 import { SysUserController } from './user/user.controller';
@@ -44,6 +44,9 @@ import * as postService from './post/service';
 import * as deptController from './dept/controller';
 import * as deptService from './dept/service';
 
+import * as menuController from './menu/controller';
+import * as menuService from './menu/service';
+
 @Module({
   imports: [
     BullModule.registerQueueAsync({
@@ -66,6 +69,7 @@ import * as deptService from './dept/service';
     SysUserController,
     SysRoleController,
     SysMenuController,
+    menuController.MyController,
     SysDeptController,
     deptController.MyController,
     SysLogController,
@@ -83,6 +87,7 @@ import * as deptService from './dept/service';
     SysUserService,
     SysRoleService,
     SysMenuService,
+    menuService.Service,
     SysDeptService,
     deptService.Service,
     SysLogService,

@@ -12,7 +12,7 @@ import { sys_role } from '@prisma/client';
 import { ApiException } from 'src/common/exceptions/api.exception';
 import { AdminUser } from '../../core/decorators/admin-user.decorator';
 import { IAdminUser } from '../../admin.interface';
-import { SysMenuService } from '../menu/menu.service';
+import { SysMenuService } from '../menuBack/menu.service';
 import { RoleInfo } from './role.class';
 import {
   CreateRoleDto,

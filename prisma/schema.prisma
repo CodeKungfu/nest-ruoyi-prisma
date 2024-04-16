@@ -169,21 +169,21 @@ model sys_logininfor {
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model sys_menu {
-  menu_id     BigInt    @id @default(autoincrement())
-  menu_name   String    @db.VarChar(50)
-  parent_id   BigInt?   @default(0)
-  order_num   Int?      @default(0)
+  menuId     BigInt    @id @default(autoincrement()) @map("menu_id")
+  menuName   String    @db.VarChar(50) @map("menu_name")
+  parentId   BigInt?   @default(0) @map("parent_id")
+  orderNum   Int?      @default(0) @map("order_num")
   url         String?   @default("#") @db.VarChar(200)
   target      String?   @default("") @db.VarChar(20)
-  menu_type   String?   @default("") @db.Char(1)
+  menuType   String?   @default("") @db.Char(1) @map("menu_type")
   visible     String?   @default("0") @db.Char(1)
-  is_refresh  String?   @default("1") @db.Char(1)
+  isRefresh  String?   @default("1") @db.Char(1) @map("is_refresh")
   perms       String?   @db.VarChar(100)
   icon        String?   @default("#") @db.VarChar(100)
-  create_by   String?   @default("") @db.VarChar(64)
-  create_time DateTime? @db.DateTime(0)
-  update_by   String?   @default("") @db.VarChar(64)
-  update_time DateTime? @db.DateTime(0)
+  createBy   String?   @default("") @db.VarChar(64) @map("create_by")
+  createTime DateTime? @db.DateTime(0) @map("create_time")
+  updateBy   String?   @default("") @db.VarChar(64) @map("update_by")
+  updateTime DateTime? @db.DateTime(0) @map("update_time")
   remark      String?   @default("") @db.VarChar(500)
 }
 
