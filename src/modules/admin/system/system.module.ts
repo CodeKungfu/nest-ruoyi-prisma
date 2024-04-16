@@ -8,8 +8,8 @@ import {
 } from 'src/modules/admin/admin.constants';
 import { WSModule } from 'src/modules/ws/ws.module';
 import { rootRoleIdProvider } from '../core/provider/root-role-id.provider';
-import { SysDeptController } from './dept/dept.controller';
-import { SysDeptService } from './dept/dept.service';
+import { SysDeptController } from './deptBack/dept.controller';
+import { SysDeptService } from './deptBack/dept.service';
 import { SysLogController } from './log/log.controller';
 import { SysLogService } from './log/log.service';
 import { SysMenuController } from './menu/menu.controller';
@@ -41,6 +41,9 @@ import * as noticeService from './notice/service';
 import * as postController from './post/controller';
 import * as postService from './post/service';
 
+import * as deptController from './dept/controller';
+import * as deptService from './dept/service';
+
 @Module({
   imports: [
     BullModule.registerQueueAsync({
@@ -64,6 +67,7 @@ import * as postService from './post/service';
     SysRoleController,
     SysMenuController,
     SysDeptController,
+    deptController.MyController,
     SysLogController,
     SysTaskController,
     SysOnlineController,
@@ -80,6 +84,7 @@ import * as postService from './post/service';
     SysRoleService,
     SysMenuService,
     SysDeptService,
+    deptService.Service,
     SysLogService,
     SysTaskService,
     SysTaskConsumer,

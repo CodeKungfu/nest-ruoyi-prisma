@@ -23,7 +23,7 @@ export class SysDeptService {
   async list(): Promise<sys_dept[]> {
     return await prisma.sys_dept.findMany({
       orderBy: {
-        order_num: 'desc',
+        orderNum: 'desc',
       },
     });
   }
@@ -34,17 +34,17 @@ export class SysDeptService {
   async info(id: number): Promise<DeptDetailInfo> {
     const department = await prisma.sys_dept.findUnique({
       where: {
-        dept_id: id,
+        deptId: id,
       },
     });
     if (isEmpty(department)) {
       throw new ApiException(10019);
     }
     let parentDepartment = null;
-    if (department.parent_id) {
+    if (department.parentId) {
       parentDepartment = await prisma.sys_dept.findUnique({
         where: {
-          dept_id: department.parent_id,
+          deptId: department.parentId,
         },
       });
     }
@@ -57,11 +57,11 @@ export class SysDeptService {
   async update(param: UpdateDeptDto): Promise<void> {
     await prisma.sys_dept.update({
       data: {
-        parent_id: param.parent_id === -1 ? undefined : param.parent_id,
-        dept_name: param.name,
-        order_num: param.order_num,
+        parentId: param.parent_id === -1 ? undefined : param.parent_id,
+        deptName: param.name,
+        orderNum: param.order_num,
       },
-      where: { dept_id: param.id },
+      where: { deptId: param.id },
     });
   }
 
@@ -85,8 +85,8 @@ export class SysDeptService {
   async add(deptName: string, parentDeptId: number): Promise<void> {
     await prisma.sys_dept.create({
       data: {
-        dept_name: deptName,
-        parent_id: parentDeptId === -1 ? null : parentDeptId,
+        deptName: deptName,
+        parentId: parentDeptId === -1 ? null : parentDeptId,
       },
     });
   }
@@ -99,10 +99,10 @@ export class SysDeptService {
       for (const item of depts) {
         await prisma.sys_dept.update({
           data: {
-            parent_id: item.parent_id,
+            parentId: item.parent_id,
           },
           where: {
-            dept_id: item.id,
+            deptId: item.id,
           },
         });
       }
@@ -115,7 +115,7 @@ export class SysDeptService {
   async delete(departmentId: number): Promise<void> {
     await prisma.sys_dept.delete({
       where: {
-        dept_id: departmentId,
+        deptId: departmentId,
       },
     });
   }
@@ -148,7 +148,7 @@ export class SysDeptService {
   async countChildDept(id: number): Promise<number> {
     return await prisma.sys_dept.count({
       where: {
-        parent_id: id,
+        parentId: id,
       },
     });
   }

@@ -267,7 +267,7 @@ export class SysUserService {
     }
     const departmentRow = await prisma.sys_dept.findUnique({
       where: {
-        dept_id: user.dept_id,
+        deptId: user.dept_id,
       },
     });
     if (isEmpty(departmentRow)) {
@@ -282,7 +282,7 @@ export class SysUserService {
       return e.role_id;
     });
     delete user.password;
-    return { ...user, roles, departmentName: departmentRow.dept_name };
+    return { ...user, roles, departmentName: departmentRow.deptName };
   }
 
   /**
