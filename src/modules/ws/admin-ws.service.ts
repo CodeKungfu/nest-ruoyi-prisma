@@ -72,12 +72,12 @@ export class AdminWSService {
   async noticeUserToUpdateMenusByMenuIds(menuIds: number[]): Promise<void> {
     const roleMenus = await prisma.sys_role_menu.findMany({
       where: {
-        menu_id: {
+        menuId: {
           in: menuIds,
         },
       },
     });
-    const roleIds = roleMenus.map((n) => Number(n.role_id));
+    const roleIds = roleMenus.map((n) => Number(n.roleId));
     await this.noticeUserToUpdateMenusByRoleIds(roleIds);
   }
 
@@ -87,13 +87,13 @@ export class AdminWSService {
   async noticeUserToUpdateMenusByRoleIds(roleIds: number[]): Promise<void> {
     const users = await prisma.sys_user_role.findMany({
       where: {
-        role_id: {
+        roleId: {
           in: roleIds,
         },
       },
     });
     if (users) {
-      const userIds = users.map((n) => Number(n.role_id));
+      const userIds = users.map((n) => Number(n.roleId));
       await this.noticeUserToUpdateMenusByUserIds(userIds);
     }
   }

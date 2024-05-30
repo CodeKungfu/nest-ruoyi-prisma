@@ -1,23 +1,9 @@
-import {
-  Body,
-  Controller,
-  Get,
-  Post,
-  Query,
-  Param,
-  Put,
-  Delete,
-} from '@nestjs/common';
-import {
-  ApiOperation,
-  ApiOkResponse,
-  ApiSecurity,
-  ApiTags,
-} from '@nestjs/swagger';
-import { Keep } from 'src/common/decorators/keep.decorator';
-import { ADMIN_PREFIX } from 'src/modules/admin/admin.constants';
+import { Body, Controller, Get, Post, Query, Param, Put, Delete, UseInterceptors, Res, StreamableFile } from '@nestjs/common';
+import { ApiOperation, ApiOkResponse, ApiSecurity, ApiTags } from '@nestjs/swagger';
+import { Keep, RequiresPermissions } from 'src/common/decorators';
+import { ExcelFileCleanupInterceptor } from 'src/common/interceptors/excel.interceptor';
 import { Service } from './service';
-import { keyStr, controllerName } from './config';
+import { keyStr, controllerName, ADMIN_PREFIX } from './config';
 
 @ApiSecurity(ADMIN_PREFIX)
 @ApiTags(`${keyStr}模块`)
@@ -25,6 +11,7 @@ import { keyStr, controllerName } from './config';
 export class MyController {
   constructor(private service: Service) {}
 
+  @RequiresPermissions('system:dict:list')
   @ApiOperation({ summary: `分页查询${keyStr}` })
   @Keep()
   @Get('list')
@@ -40,14 +27,26 @@ export class MyController {
       },
     };
   }
-  @ApiOperation({ summary: `查询${keyStr}` })
-  @ApiOkResponse()
-  @Get(':type/:name')
-  async info(@Param() params: any): Promise<any> {
-    const list = await this.service.info(params.name);
-    return list;
+
+  /**
+   * 导出
+   */
+  @RequiresPermissions('system:dict:export')
+  @ApiOperation({ summary: `导出` })
+  @UseInterceptors(ExcelFileCleanupInterceptor)
+  @Post('export')
+  async export(@Body() dto: any, @Res() res: any): Promise<StreamableFile> {
+    const { filename, filePath, file } =  await this.service.pageDtoExport(dto);
+    res.filePathToDelete = filePath;
+    res.header('Content-disposition', `attachment; filename=${filename}.xlsx`);
+    res.type('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    return res.send(file);
   }
 
+  /**
+   * 查询字典数据详细
+   */
+  @RequiresPermissions('system:dict:query')
   @ApiOperation({ summary: `查询${keyStr}` })
   @ApiOkResponse()
   @Get(':id')
@@ -56,14 +55,33 @@ export class MyController {
     return list;
   }
 
+  /**
+   * 根据字典类型查询字典数据信息
+   */
   @ApiOperation({ summary: `查询${keyStr}` })
   @ApiOkResponse()
-  @Delete(':id')
-  async delete(@Param() params: any): Promise<any> {
-    const list = await this.service.delete(params.id);
+  @Get('type/:name')
+  async info(@Param() params: any): Promise<any> {
+    const list = await this.service.info(params.name);
     return list;
   }
 
+  /**
+   * 新增字典类型
+   */
+  @RequiresPermissions('system:dict:add')
+  @ApiOperation({ summary: `查询${keyStr}` })
+  @ApiOkResponse()
+  @Post()
+  async create(@Body() body: any): Promise<any> {
+    const list = await this.service.create(body);
+    return list;
+  }
+
+  /**
+   * 修改保存字典类型
+   */
+  @RequiresPermissions('system:dict:edit')
   @ApiOperation({ summary: `查询${keyStr}` })
   @ApiOkResponse()
   @Put()
@@ -72,11 +90,15 @@ export class MyController {
     return list;
   }
 
+  /**
+   * 删除字典类型
+   */
+  @RequiresPermissions('system:dict:remove')
   @ApiOperation({ summary: `查询${keyStr}` })
   @ApiOkResponse()
-  @Post()
-  async create(@Body() body: any): Promise<any> {
-    const list = await this.service.create(body);
+  @Delete(':id')
+  async delete(@Param() params: any): Promise<any> {
+    const list = await this.service.delete(params.id);
     return list;
   }
 }

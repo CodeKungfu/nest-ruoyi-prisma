@@ -3,20 +3,154 @@ import { Inject, Injectable } from '@nestjs/common';
 import { findIndex, isEmpty } from 'lodash';
 import { ApiException } from 'src/common/exceptions/api.exception';
 import { UtilService } from 'src/shared/services/util.service';
+import { ExcelService } from 'src/shared/services/excel.service';
 import { ROOT_ROLE_ID } from 'src/modules/admin/admin.constants';
 import { RedisService } from 'src/shared/services/redis.service';
 import { SYS_USER_INITPASSWORD } from 'src/common/contants/param-config.contants';
 // import { SysParamConfigService } from '../param-config/param-config.service';
 import { AccountInfo, PageSearchUserInfo } from './user.class';
-import {
-  CreateUserDto,
-  PageSearchUserDto,
-  UpdatePasswordDto,
-  UpdateUserDto,
-  UpdateUserInfoDto,
-} from './user.dto';
+import { CreateUserDto, PageSearchUserDto, UpdatePasswordDto, UpdateUserDto, UpdateUserInfoDto } from './user.dto';
+import { omit } from 'lodash';
 import { prisma } from 'src/prisma';
 import { sys_user } from '@prisma/client';
+
+// 能用1
+// const transData = (jsonArr, roleId) => {
+//   let readArr = [];
+//   if (roleId) {
+//     jsonArr.forEach((item) => {
+//       if (item.roleId === roleId) {
+//         readArr.push(item);
+//       }
+//     });
+//   } else {
+//     readArr = jsonArr;
+//   }
+//   // 调用方法， temp为原始数据, result为树形结构数据
+//   const result = generateOptions(readArr);
+
+//   // 开始递归方法
+//   function generateOptions(params) {
+//     const result: any = [];
+//     for (const param of params) {
+//       if (Number(param.parentId) === 0) {
+//         // 判断是否为顶层节点
+//         const parent: any = {
+//           id: param.deptId,
+//           label: param.deptName,
+//         };
+//         parent.children = getchilds(param.deptId, params); // 获取子节点
+//         result.push(parent);
+//       }
+//     }
+//     return result;
+//   }
+
+//   function getchilds(id, array) {
+//     const childs = [];
+//     for (const arr of array) {
+//       // 循环获取子节点
+//       if (arr.parentId === id) {
+//         childs.push({
+//           id: arr.deptId,
+//           label: arr.deptName,
+//         });
+//       }
+//     }
+//     for (const child of childs) {
+//       // 获取子节点的子节点
+//       const childscopy = getchilds(child.id, array); // 递归获取子节点
+//       if (childscopy.length > 0) {
+//         child.children = childscopy;
+//       }
+//     }
+//     return childs;
+//   }
+//   return result;
+// };
+
+// 能用2
+// const transData = (jsonArr, roleId) => {
+//   // 如果roleId存在，筛选出相关项目，否则直接使用原数组
+//   const readArr = roleId
+//     ? jsonArr.filter((item) => item.roleId === roleId)
+//     : jsonArr;
+
+//   // 建立映射关系
+//   const idToChildren = new Map();
+//   for (const item of readArr) {
+//     item.children = idToChildren.get(Number(item.deptId)) || []; // 初始化children
+//     // 如果有父项，就把自己加到父项的children数组中
+//     if (!idToChildren.has(Number(item.parentId))) {
+//       idToChildren.set(Number(item.parentId), []);
+//     }
+//     idToChildren.get(Number(item.parentId)).push({
+//       id: Number(item.deptId),
+//       label: item.deptName,
+//       children: item.children || undefined,
+//     });
+//   }
+//   // 根结点
+//   const filterArr = readArr
+//     .filter((item) => Number(item.parentId) === 0)
+//     .map((item) => ({
+//       id: Number(item.deptId),
+//       label: item.deptName,
+//     }));
+//   const result = filterArr.map((item) => ({
+//     id: item.id,
+//     label: item.label,
+//     children: buildTree(item, idToChildren),
+//   }));
+
+//   function buildTree(item, idToChildren) {
+//     const children: any = idToChildren.get(item.id) || [];
+//     if (children.length > 0) {
+//       for (const child of children) {
+//         child.children = buildTree(child, idToChildren);
+//       }
+//       return children;
+//     }
+//   }
+//   return result;
+// };
+
+const transData = (jsonArr, roleId) => {
+  // 如果roleId存在，筛选出相关项目，否则直接使用原数组
+  let readArr = roleId ? jsonArr.filter((item) => item.roleId === roleId) : jsonArr;
+  // 需要返回数据字段
+  readArr = readArr.map((item) => ({
+    parentId: Number(item.parentId),
+    id: Number(item.deptId),
+    label: item.deptName,
+  }));
+  // 建立映射关系
+  const idToChildren = new Map();
+  for (const item of readArr) {
+    item.children = idToChildren.get(item.id) || undefined; // 初始化children
+    // 如果有父项，就把自己加到父项的children数组中
+    if (!idToChildren.has(item.parentId)) {
+      idToChildren.set(item.parentId, []);
+    }
+    idToChildren.get(item.parentId).push(item);
+  }
+  function buildTree(item, idToChildren) {
+    const children: any = idToChildren.get(item.id) || [];
+    if (children.length > 0) {
+      for (const child of children) {
+        child.children = buildTree(child, idToChildren);
+      }
+      return children;
+    }
+  }
+  return readArr
+    .filter((item) => item.parentId === 0)
+    .map((item) => ({
+      id: item.id,
+      label: item.label,
+      children: buildTree(item, idToChildren),
+    }));
+};
 
 @Injectable()
 export class SysUserService {
@@ -25,7 +159,23 @@ export class SysUserService {
     // private paramConfigService: SysParamConfigService,
     @Inject(ROOT_ROLE_ID) private rootRoleId: number,
     private util: UtilService,
+    private excelService: ExcelService,
   ) {}
+
+
+  /**
+   * 分页查询信息
+   */
+  async pageDtoExport(dto: any): Promise<any> {
+    const queryObj = omit(dto, ['pageNum', 'pageSize']);
+    const result: any = await prisma.sys_user.findMany({
+      skip: (Number(dto.pageNum) - 1) * Number(dto.pageSize),
+      take: Number(dto.pageSize),
+      where: queryObj,
+    });
+    
+    return this.excelService.createExcelFile('target', result);
+  }
 
   /**
    * 根据用户名查找已经启用的用户
@@ -33,12 +183,141 @@ export class SysUserService {
   async findUserByUserName(username: string): Promise<sys_user | undefined> {
     return await prisma.sys_user.findFirst({
       where: {
-        login_name: username,
-        status: '1',
+        userName: username,
+        status: '0',
       },
     });
   }
+  /**
+   * 根据获取信息
+   */
+  async infoUser0(id: number): Promise<any> {
+    const resultInfo: any = await prisma.sys_user.findFirst({
+      where: {
+        userId: Number(id),
+      },
+    });
+    if (isEmpty(resultInfo)) {
+      throw new ApiException(10017);
+    }
+    return resultInfo;
+  }
 
+  /**
+   * 根据获取信息
+   */
+  async infoUser(id: number): Promise<any> {
+    const posts: any = await prisma.sys_post.findMany();
+    const roles: any = await prisma.sys_role.findMany();
+    const resultInfo: any = await prisma.sys_user.findFirst({
+      where: {
+        userId: Number(id),
+      },
+    });
+    if (isEmpty(resultInfo)) {
+      throw new ApiException(10017);
+    }
+    const roleRows: any = await prisma.sys_user_role.findMany({
+      where: {
+        userId: Number(id),
+      },
+    });
+    const postRows: any = await prisma.sys_user_post.findMany({
+      where: {
+        userId: Number(id),
+      },
+    });
+
+    const postIds = [];
+    const roleIds = [];
+    roleRows.forEach((item) => {
+      roleIds.push(Number(item.roleId));
+    });
+    postRows.forEach((item) => {
+      postIds.push(Number(item.postId));
+    });
+    return {
+      posts,
+      roles,
+      postIds,
+      roleIds,
+      data: resultInfo,
+    };
+  }
+
+  /**
+   * 根据获取信息
+   */
+  async infoUserV1(): Promise<any> {
+    const posts: any = await prisma.sys_post.findMany();
+    const roles: any = await prisma.sys_role.findMany();
+    return {
+      posts,
+      roles,
+    };
+  }
+
+  /**
+   * 根据获取信息
+   */
+  async infoUserRole(id: number): Promise<any> {
+    const userRole: any = await prisma.sys_user_role.findFirst({
+      where: {
+        userId: Number(id),
+      },
+    });
+    let resultInfo: any = [];
+    if (userRole) {
+      resultInfo = await prisma.sys_role.findMany({
+        where: {
+          roleId: userRole.role_id,
+          delFlag: '0',
+        },
+      });
+    }
+    const allRowsInfo: any = await prisma.sys_role.findMany({
+      where: {
+        delFlag: '0',
+      },
+    });
+    if (this.rootRoleId === Number(id)) {
+      return allRowsInfo;
+    } else {
+      const out = [];
+      allRowsInfo.forEach((item: any) => {
+        if (item.roleKey !== 'admin') {
+          let find = false;
+          resultInfo.forEach((item1: any) => {
+            if (item1.roleKey !== 'admin') {
+              if (Number(item.roleId) === Number(item1.roleId)) {
+                find = true;
+              }
+            }
+          });
+          if (find) {
+            item.flag = true;
+            out.push(item);
+          } else {
+            out.push(item);
+          }
+        }
+      });
+      return out;
+    }
+  }
+
+  /**
+   * deptTree
+   */
+  async deptTree(): Promise<any> {
+    const deptTable = await await prisma.sys_dept.findMany();
+    const data = transData(deptTable, '');
+    return {
+      msg: '操作成功',
+      code: 200,
+      data: data,
+    };
+  }
   /**
    * 获取用户信息
    * @param uid user id
@@ -50,15 +329,15 @@ export class SysUserService {
     // });
     const user: sys_user = await prisma.sys_user.findUnique({
       where: {
-        user_id: uid,
+        userId: uid,
       },
     });
     if (isEmpty(user)) {
       throw new ApiException(10017);
     }
     return {
-      name: user.user_name,
-      nickName: user.user_name,
+      name: user.userName,
+      nickName: user.nickName,
       email: user.email,
       phone: user.phonenumber,
       remark: user.remark,
@@ -73,20 +352,21 @@ export class SysUserService {
    * @param ip login ip
    */
   async getInfo(uid: number, ip?: string): Promise<any> {
-    const user: sys_user = await prisma.sys_user.findUnique({
+    const user: sys_user = await prisma.sys_user.findFirst({
       where: {
-        user_id: uid,
+        userId: uid,
       },
     });
     if (isEmpty(user)) {
       throw new ApiException(10017);
     }
+    const perm = await this.redisService.getRedis().get(`admin:perms:${user.userId}`);
     return {
-      permissions: ['*:*:*'],
+      permissions: JSON.parse(perm),
       roles: ['admin'],
       user: {
-        name: user.user_name,
-        nickName: user.user_name,
+        name: user.userName,
+        nickName: user.nickName,
         email: user.email,
         phone: user.phonenumber,
         remark: user.remark,
@@ -103,7 +383,7 @@ export class SysUserService {
     await prisma.sys_user.update({
       data: info,
       where: {
-        user_id: uid,
+        userId: uid,
       },
     });
   }
@@ -114,25 +394,25 @@ export class SysUserService {
   async updatePassword(uid: number, dto: UpdatePasswordDto): Promise<void> {
     const user = await prisma.sys_user.findUnique({
       where: {
-        user_id: uid,
+        userId: uid,
       },
     });
     if (isEmpty(user)) {
       throw new ApiException(10017);
     }
-    const comparePassword = this.util.md5(`${dto.originPassword}${user.salt}`);
+    const comparePassword = this.util.md5(`${dto.originPassword}`);
     // 原密码不一致，不允许更改
     if (user.password !== comparePassword) {
       throw new ApiException(10011);
     }
-    const password = this.util.md5(`${dto.newPassword}${user.salt}`);
+    const password = this.util.md5(`${dto.newPassword}`);
     await prisma.sys_user.update({
       data: { password },
       where: {
-        user_id: uid,
+        userId: uid,
       },
     });
-    await this.upgradePasswordV(Number(user.user_id));
+    await this.upgradePasswordV(Number(user.userId));
   }
 
   /**
@@ -141,148 +421,179 @@ export class SysUserService {
   async forceUpdatePassword(uid: number, password: string): Promise<void> {
     const user = await prisma.sys_user.findUnique({
       where: {
-        user_id: uid,
+        userId: uid,
       },
     });
     if (isEmpty(user)) {
       throw new ApiException(10017);
     }
-    const newPassword = this.util.md5(`${password}${user.salt}`);
+    const newPassword = this.util.md5(`${password}`);
     await prisma.sys_user.update({
       data: { password: newPassword },
       where: {
-        user_id: uid,
+        userId: uid,
       },
     });
-    await this.upgradePasswordV(Number(user.user_id));
+    await this.upgradePasswordV(Number(user.userId));
   }
 
   /**
    * 增加系统用户，如果返回false则表示已存在该用户
    * @param param Object 对应SysUser实体类
    */
-  async add(param: CreateUserDto): Promise<void> {
-    // const insertData: any = { ...CreateUserDto };
+  async create(param: any): Promise<void> {
     const exists = await prisma.sys_user.findFirst({
       where: {
-        user_name: param.username,
+        userName: param.userName,
       },
     });
     if (!isEmpty(exists)) {
       throw new ApiException(10001);
     }
+    if (param.phonenumber) {
+      const existsU = await prisma.sys_user.findFirst({
+        where: {
+          phonenumber: param.phonenumber,
+        },
+      });
+      if (!isEmpty(existsU)) {
+        throw new ApiException(10001);
+      }
+    }
     // 所有用户初始密码为123456
     await prisma.$transaction(async (prisma) => {
-      const salt = await this.util.generateRandomValue(32);
+      // const salt = await this.util.generateRandomValue(32);
       // 查找配置的初始密码
       // const initPassword = await this.paramConfigService.findValueByKey(
       //   SYS_USER_INITPASSWORD,
       // );
-      const initPassword = '';
-      const password = this.util.md5(`${initPassword ?? '123456'}${salt}`);
+      const initPassword = param.password;
+      const password = this.util.md5(`${initPassword ?? '123456'}`);
       const result = await prisma.sys_user.create({
         data: {
-          dept_id: param.departmentId,
-          user_name: param.username,
+          deptId: param.deptId,
+          userName: param.userName,
           password,
-          // login_name: param.name,
-          login_name: param.nickName,
+          nickName: param.nickName,
           email: param.email,
-          phonenumber: param.phone,
+          phonenumber: param.phonenumber,
           remark: param.remark,
           status: param.status.toString(),
-          salt: salt,
         },
       });
-      const { roles } = param;
-      const insertRoles = roles.map((e) => {
-        return {
-          role_id: e,
-          user_id: result.user_id,
-        };
-      });
-      // 分配角色
-      await prisma.sys_user_role.createMany({
-        data: insertRoles,
-      });
+      const { roleIds = [], postIds = [] } = param;
+      if (roleIds.length > 0) {
+        const insertRoles = roleIds.map((e) => {
+          return {
+            roleId: Number(e),
+            userId: Number(result.userId),
+          };
+        });
+        // 分配角色
+        await prisma.sys_user_role.createMany({
+          data: insertRoles,
+        });
+      }
+      if (postIds.length > 0) {
+        const insertPosts = postIds.map((e) => {
+          return {
+            postId: Number(e),
+            userId: Number(result.userId),
+          };
+        });
+        // 分配角色
+        await prisma.sys_user_post.createMany({
+          data: insertPosts,
+        });
+      }
     });
   }
 
   /**
    * 更新用户信息
    */
-  async update(param: UpdateUserDto): Promise<void> {
+  async update(param: any): Promise<void> {
+    const exists = await prisma.sys_user.findFirst({
+      where: {
+        userName: param.userName,
+        userId: {
+          not: param.userId,
+        },
+      },
+    });
+    if (!isEmpty(exists)) {
+      throw new ApiException(10001);
+    }
+    if (param.phonenumber) {
+      const existsU = await prisma.sys_user.findFirst({
+        where: {
+          phonenumber: param.phonenumber,
+          userId: {
+            not: param.userId,
+          },
+        },
+      });
+      if (!isEmpty(existsU)) {
+        throw new ApiException(10001);
+      }
+    }
     await prisma.$transaction(async (prisma) => {
       await prisma.sys_user.update({
         data: {
-          dept_id: param.departmentId,
-          user_name: param.username,
-          // name: param.name,
-          login_name: param.nickName,
+          deptId: param.deptId,
+          userName: param.userName,
+          nickName: param.nickName,
           email: param.email,
-          phonenumber: param.phone,
+          phonenumber: param.phonenumber,
           remark: param.remark,
           status: param.status.toString(),
         },
         where: {
-          user_id: param.id,
+          userId: param.userId,
         },
       });
       // 先删除原来的角色关系
       await prisma.sys_user_role.deleteMany({
         where: {
-          user_id: param.id,
+          userId: Number(param.userId),
         },
       });
-      const insertRoles = param.roles.map((e) => {
-        return {
-          role_id: e,
-          user_id: param.id,
-        };
+      await prisma.sys_user_post.deleteMany({
+        where: {
+          userId: Number(param.userId),
+        },
       });
-      await prisma.sys_user_role.createMany({
-        data: insertRoles,
-      });
-      if (param.status === 0) {
-        // 禁用状态
-        await this.forbidden(param.id);
-      }
-    });
-  }
 
-  /**
-   * 查找用户信息
-   * @param id 用户id
-   */
-  async info(
-    id: number,
-  ): Promise<sys_user & { roles: bigint[]; departmentName: string }> {
-    const user: sys_user = await prisma.sys_user.findUnique({
-      where: {
-        user_id: id,
-      },
+      const { roleIds = [], postIds = [] } = param;
+      if (roleIds.length > 0) {
+        const insertRoles = roleIds.map((e) => {
+          return {
+            roleId: Number(e),
+            userId: Number(param.userId),
+          };
+        });
+        // 分配角色
+        await prisma.sys_user_role.createMany({
+          data: insertRoles,
+        });
+      }
+      if (postIds.length > 0) {
+        const insertPosts = postIds.map((e) => {
+          return {
+            postId: Number(e),
+            userId: Number(param.userId),
+          };
+        });
+        // 分配角色
+        await prisma.sys_user_post.createMany({
+          data: insertPosts,
+        });
+      }
+      // if (param.status === 0) {
+      //   // 禁用状态
+      //   await this.forbidden(param.id);
+      // }
     });
-    if (isEmpty(user)) {
-      throw new ApiException(10017);
-    }
-    const departmentRow = await prisma.sys_dept.findUnique({
-      where: {
-        deptId: user.dept_id,
-      },
-    });
-    if (isEmpty(departmentRow)) {
-      throw new ApiException(10018);
-    }
-    const roleRows = await prisma.sys_user_role.findMany({
-      where: {
-        user_id: user.user_id,
-      },
-    });
-    const roles = roleRows.map((e) => {
-      return e.role_id;
-    });
-    delete user.password;
-    return { ...user, roles, departmentName: departmentRow.deptName };
   }
 
   /**
@@ -291,7 +602,7 @@ export class SysUserService {
   async infoList(ids: number[]): Promise<sys_user[]> {
     const users = await prisma.sys_user.findMany({
       where: {
-        user_id: {
+        userId: {
           in: ids,
         },
       },
@@ -302,25 +613,55 @@ export class SysUserService {
   /**
    * 根据ID列表删除用户
    */
-  async delete(userIds: number[]): Promise<void | never> {
-    const rootUserId = await this.findRootUserId();
-    if (userIds.includes(Number(rootUserId))) {
+  async delete(ids: any): Promise<void | never> {
+    const rootUserId = this.rootRoleId;
+    const userIds = ids.split(',');
+    if (userIds.includes(rootUserId.toString())) {
       throw new Error('can not delete root user!');
     }
     await prisma.sys_user.deleteMany({
       where: {
-        user_id: {
+        userId: {
           in: userIds,
         },
       },
     });
     await prisma.sys_user_role.deleteMany({
       where: {
-        user_id: {
+        userId: {
           in: userIds,
         },
       },
     });
+    await prisma.sys_user_post.deleteMany({
+      where: {
+        userId: {
+          in: userIds,
+        },
+      },
+    });
+  }
+
+  async insertAuthRole(userId, roleIds): Promise<any> {
+    // 先删除原来的角色关系
+    await prisma.sys_user_role.deleteMany({
+      where: {
+        userId: Number(userId),
+      },
+    });
+    if (roleIds) {
+      const arr = roleIds.split(',');
+      const insertRoles = arr.map((e) => {
+        return {
+          roleId: Number(e),
+          userId: Number(userId),
+        };
+      });
+      // 分配角色
+      await prisma.sys_user_role.createMany({
+        data: insertRoles,
+      });
+    }
   }
 
   /**
@@ -332,7 +673,7 @@ export class SysUserService {
     if (queryAll) {
       return await prisma.sys_user.count({
         where: {
-          user_id: {
+          userId: {
             notIn: [Number(rootUserId), uid],
           },
         },
@@ -340,10 +681,10 @@ export class SysUserService {
     }
     return await prisma.sys_user.count({
       where: {
-        user_id: {
+        userId: {
           notIn: [Number(rootUserId), uid],
         },
-        dept_id: {
+        deptId: {
           in: deptIds,
         },
       },
@@ -356,20 +697,36 @@ export class SysUserService {
   async findRootUserId(): Promise<bigint> {
     const result = await prisma.sys_user_role.findMany({
       where: {
-        role_id: this.rootRoleId,
+        roleId: this.rootRoleId,
       },
     });
-    return result[0].user_id;
+    return result[0].userId;
+  }
+
+  /**
+   * 分页查询信息
+   */
+  async pageDto(dto: any): Promise<any> {
+    const queryObj = omit(dto, ['pageNum', 'pageSize']);
+    const result: any = await prisma.sys_user.findMany({
+      skip: (Number(dto.pageNum) - 1) * Number(dto.pageSize),
+      take: Number(dto.pageSize),
+      where: queryObj,
+    });
+    const countNum: any = await prisma.sys_user.count({
+      where: queryObj,
+    });
+    return {
+      result,
+      countNum,
+    };
   }
 
   /**
    * 根据部门ID进行分页查询用户列表
    * deptId = -1 时查询全部
    */
-  async page(
-    uid: number,
-    params: PageSearchUserDto,
-  ): Promise<PageSearchUserInfo[]> {
+  async page(uid: number, params: PageSearchUserDto): Promise<PageSearchUserInfo[]> {
     // const { departmentIds, limit, page, name, username, phone, remark } =
     //   params;
     const { departmentIds, limit, page } = params;
@@ -497,13 +854,9 @@ export class SysUserService {
    */
   async upgradePasswordV(id: number): Promise<void> {
     // admin:passwordVersion:${param.id}
-    const v = await this.redisService
-      .getRedis()
-      .get(`admin:passwordVersion:${id}`);
+    const v = await this.redisService.getRedis().get(`admin:passwordVersion:${id}`);
     if (!isEmpty(v)) {
-      await this.redisService
-        .getRedis()
-        .set(`admin:passwordVersion:${id}`, parseInt(v) + 1);
+      await this.redisService.getRedis().set(`admin:passwordVersion:${id}`, parseInt(v) + 1);
     }
   }
 }

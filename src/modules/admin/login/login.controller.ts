@@ -1,12 +1,4 @@
-import {
-  Body,
-  Controller,
-  Get,
-  Headers,
-  Post,
-  Query,
-  Req,
-} from '@nestjs/common';
+import { Body, Controller, Get, Headers, Post, Query, Req } from '@nestjs/common';
 import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { FastifyRequest } from 'fastify';
 import { UtilService } from 'src/shared/services/util.service';
@@ -38,18 +30,9 @@ export class LoginController {
   @Post('login')
   @LogDisabled()
   @Authorize()
-  async login(
-    @Body() dto: LoginInfoDto,
-    @Req() req: FastifyRequest,
-    @Headers('user-agent') ua: string,
-  ): Promise<LoginToken> {
+  async login(@Body() dto: LoginInfoDto, @Req() req: FastifyRequest, @Headers('user-agent') ua: string): Promise<LoginToken> {
     await this.loginService.checkImgCaptcha(dto.captchaId, dto.verifyCode);
-    const token = await this.loginService.getLoginSign(
-      dto.username,
-      dto.password,
-      this.utils.getReqIP(req),
-      ua,
-    );
+    const token = await this.loginService.getLoginSign(dto.username, dto.password, this.utils.getReqIP(req), ua);
     return { token };
   }
 }

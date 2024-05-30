@@ -11,6 +11,75 @@ import { SysMenuService } from '../system/menuBack/menu.service';
 import { ImageCaptchaDto } from './login.dto';
 import { ImageCaptcha, PermMenuInfo } from './login.class';
 
+function capitalizeFirstLetter(string) {
+  return string.charAt(0).toUpperCase() + string.slice(1);
+}
+
+// console.log(capitalizeFirstLetter('nodejs')); // 输出: Nodejs
+
+const transData = (jsonArr) => {
+  const readArr = jsonArr;
+  // 调用方法， temp为原始数据, result为树形结构数据
+  const result = generateOptions(readArr);
+
+  // 开始递归方法
+  function generateOptions(params) {
+    const result: any = [];
+    for (const param of params) {
+      if (Number(param.parent_id) === 0) {
+        // 判断是否为顶层节点
+        const parent: any = {
+          name: capitalizeFirstLetter(param.path),
+          path: '/' + param.path,
+          hidden: false,
+          redirect: 'noRedirect',
+          component: 'Layout',
+          alwaysShow: true,
+          meta: {
+            title: param.menu_name,
+            icon: param.icon,
+            noCache: false,
+            link: null,
+          },
+        };
+        parent.children = getchilds(param.menu_id, params); // 获取子节点
+        result.push(parent);
+      }
+    }
+    return result;
+  }
+
+  function getchilds(id, array) {
+    const childs = [];
+    for (const arr of array) {
+      // 循环获取子节点
+      if (arr.parent_id === id) {
+        childs.push({
+          name: capitalizeFirstLetter(arr.path),
+          path: arr.path,
+          hidden: false,
+          component: arr.component,
+          meta: {
+            title: arr.menu_name,
+            icon: arr.icon,
+            noCache: false,
+            link: null,
+          },
+        });
+      }
+    }
+    for (const child of childs) {
+      // 获取子节点的子节点
+      const childscopy = getchilds(child.id, array); // 递归获取子节点
+      if (childscopy.length > 0) {
+        child.children = childscopy;
+      }
+    }
+    return childs;
+  }
+  return result;
+};
+
 @Injectable()
 export class LoginService {
   constructor(
@@ -77,22 +146,22 @@ export class LoginService {
     if (isEmpty(user)) {
       throw new ApiException(10003);
     }
-    const comparePassword = this.util.md5(`${password}${user.salt}`);
+    const comparePassword = this.util.md5(`${password}`);
     if (user.password !== comparePassword) {
       throw new ApiException(10003);
     }
-    const perms = await this.menuService.getPerms(Number(user.user_id));
+    const perms = await this.menuService.getPerms(Number(user.userId));
     // TODO 系统管理员开放多点登录
-    if (Number(user.user_id) === 1) {
-      const oldToken = await this.getRedisTokenById(Number(user.user_id));
+    if (Number(user.userId) === 1) {
+      const oldToken = await this.getRedisTokenById(Number(user.userId));
       if (oldToken) {
-        this.logService.saveLoginLog(Number(user.user_id), ip, ua);
+        this.logService.saveLoginLog(Number(user.userId), ip, ua);
         return oldToken;
       }
     }
     const jwtSign = this.jwtService.sign(
       {
-        uid: parseInt(user.user_id.toString()),
+        uid: parseInt(user.userId.toString()),
         pv: 1,
       },
       // {
@@ -101,15 +170,15 @@ export class LoginService {
     );
     await this.redisService
       .getRedis()
-      .set(`admin:passwordVersion:${user.user_id}`, 1);
+      .set(`admin:passwordVersion:${user.userId}`, 1);
     // Token设置过期时间 24小时
     await this.redisService
       .getRedis()
-      .set(`admin:token:${user.user_id}`, jwtSign, 'EX', 60 * 60 * 24);
+      .set(`admin:token:${user.userId}`, jwtSign, 'EX', 60 * 60 * 24);
     await this.redisService
       .getRedis()
-      .set(`admin:perms:${user.user_id}`, JSON.stringify(perms));
-    await this.logService.saveLoginLog(Number(user.user_id), ip, ua);
+      .set(`admin:perms:${user.userId}`, JSON.stringify(perms));
+    await this.logService.saveLoginLog(Number(user.userId), ip, ua);
     return jwtSign;
   }
 
@@ -123,256 +192,17 @@ export class LoginService {
   async getRouters(uid: number): Promise<any> {
     const menus_1 = await this.menuService.getMenus(uid);
     const menus = [];
-    menus_1.forEach((item) => {
+    menus_1.forEach((item: any) => {
       const temp = Object.assign({}, item, {
-        menu_id: Number(item.menuId),
-        parent_id: Number(item.parentId),
+        menuId: Number(item.menu_id),
+        parentId: Number(item.parent_id),
       });
       menus.push(temp);
     });
-    console.log(menus);
-    return [
-      {
-        name: 'System',
-        path: '/system',
-        hidden: false,
-        redirect: 'noRedirect',
-        component: 'Layout',
-        alwaysShow: true,
-        meta: {
-          title: '系统管理',
-          icon: 'system',
-          noCache: false,
-          link: null,
-        },
-        children: [
-          {
-            name: 'User',
-            path: 'user',
-            hidden: false,
-            component: 'system/user/index',
-            meta: {
-              title: '用户管理',
-              icon: 'user',
-              noCache: false,
-              link: null,
-            },
-          },
-          {
-            name: 'Role',
-            path: 'role',
-            hidden: false,
-            component: 'system/role/index',
-            meta: {
-              title: '角色管理',
-              icon: 'peoples',
-              noCache: false,
-              link: null,
-            },
-          },
-          {
-            name: 'Menu',
-            path: 'menu',
-            hidden: false,
-            component: 'system/menu/index',
-            meta: {
-              title: '菜单管理',
-              icon: 'tree-table',
-              noCache: false,
-              link: null,
-            },
-          },
-          {
-            name: 'Dept',
-            path: 'dept',
-            hidden: false,
-            component: 'system/dept/index',
-            meta: {
-              title: '部门管理',
-              icon: 'tree',
-              noCache: false,
-              link: null,
-            },
-          },
-          {
-            name: 'Post',
-            path: 'post',
-            hidden: false,
-            component: 'system/post/index',
-            meta: {
-              title: '岗位管理',
-              icon: 'post',
-              noCache: false,
-              link: null,
-            },
-          },
-          {
-            name: 'Dict',
-            path: 'dict',
-            hidden: false,
-            component: 'system/dict/index',
-            meta: {
-              title: '字典管理',
-              icon: 'dict',
-              noCache: false,
-              link: null,
-            },
-          },
-          {
-            name: 'Config',
-            path: 'config',
-            hidden: false,
-            component: 'system/config/index',
-            meta: {
-              title: '参数设置',
-              icon: 'edit',
-              noCache: false,
-              link: null,
-            },
-          },
-          {
-            name: 'Notice',
-            path: 'notice',
-            hidden: false,
-            component: 'system/notice/index',
-            meta: {
-              title: '通知公告',
-              icon: 'message',
-              noCache: false,
-              link: null,
-            },
-          },
-          {
-            name: 'Log',
-            path: 'log',
-            hidden: false,
-            redirect: 'noRedirect',
-            component: 'ParentView',
-            alwaysShow: true,
-            meta: {
-              title: '日志管理',
-              icon: 'log',
-              noCache: false,
-              link: null,
-            },
-            children: [
-              {
-                name: 'Operlog',
-                path: 'operlog',
-                hidden: false,
-                component: 'monitor/operlog/index',
-                meta: {
-                  title: '操作日志',
-                  icon: 'form',
-                  noCache: false,
-                  link: null,
-                },
-              },
-              {
-                name: 'Logininfor',
-                path: 'logininfor',
-                hidden: false,
-                component: 'monitor/logininfor/index',
-                meta: {
-                  title: '登录日志',
-                  icon: 'logininfor',
-                  noCache: false,
-                  link: null,
-                },
-              },
-            ],
-          },
-        ],
-      },
-      {
-        name: 'Monitor',
-        path: '/monitor',
-        hidden: false,
-        redirect: 'noRedirect',
-        component: 'Layout',
-        alwaysShow: true,
-        meta: {
-          title: '系统监控',
-          icon: 'monitor',
-          noCache: false,
-          link: null,
-        },
-        children: [
-          {
-            name: 'Online',
-            path: 'online',
-            hidden: false,
-            component: 'monitor/online/index',
-            meta: {
-              title: '在线用户',
-              icon: 'online',
-              noCache: false,
-              link: null,
-            },
-          },
-          {
-            name: 'Job',
-            path: 'job',
-            hidden: false,
-            component: 'monitor/job/index',
-            meta: {
-              title: '定时任务',
-              icon: 'job',
-              noCache: false,
-              link: null,
-            },
-          },
-          {
-            name: 'Druid',
-            path: 'druid',
-            hidden: false,
-            component: 'monitor/druid/index',
-            meta: {
-              title: '数据监控',
-              icon: 'druid',
-              noCache: false,
-              link: null,
-            },
-          },
-          {
-            name: 'Server',
-            path: 'server',
-            hidden: false,
-            component: 'monitor/server/index',
-            meta: {
-              title: '服务监控',
-              icon: 'server',
-              noCache: false,
-              link: null,
-            },
-          },
-          {
-            name: 'Cache',
-            path: 'cache',
-            hidden: false,
-            component: 'monitor/cache/index',
-            meta: {
-              title: '缓存监控',
-              icon: 'redis',
-              noCache: false,
-              link: null,
-            },
-          },
-          {
-            name: 'CacheList',
-            path: 'cacheList',
-            hidden: false,
-            component: 'monitor/cache/list',
-            meta: {
-              title: '缓存列表',
-              icon: 'redis-list',
-              noCache: false,
-              link: null,
-            },
-          },
-        ],
-      }
-    ];
+    // console.log(menus);
+    const res = transData(menus);
+    // console.log(res);
+    return res;
   }
   /**
    * 获取权限菜单

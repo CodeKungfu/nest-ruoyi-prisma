@@ -1,11 +1,7 @@
 import { Module } from '@nestjs/common';
 import { BullModule } from '@nestjs/bull';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import {
-  ROOT_ROLE_ID,
-  SYS_TASK_QUEUE_NAME,
-  SYS_TASK_QUEUE_PREFIX,
-} from 'src/modules/admin/admin.constants';
+import { ROOT_ROLE_ID, SYS_TASK_QUEUE_NAME, SYS_TASK_QUEUE_PREFIX } from 'src/modules/admin/admin.constants';
 import { WSModule } from 'src/modules/ws/ws.module';
 import { rootRoleIdProvider } from '../core/provider/root-role-id.provider';
 

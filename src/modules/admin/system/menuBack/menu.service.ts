@@ -57,13 +57,23 @@ export class SysMenuService {
     let menus: sys_menu[] = [];
     if (includes(roleIds, this.rootRoleId)) {
       // root find all
-      menus = await prisma.sys_menu.findMany();
+      menus =
+        await prisma.$queryRaw`select distinct m.menu_id, m.parent_id, m.menu_name, m.path, m.component, m.query, m.visible, m.status, ifnull(m.perms,'') as perms, m.is_frame, m.is_cache, m.menu_type, m.icon, m.order_num, m.create_time
+        from sys_menu m where m.menu_type in ('M', 'C') and m.status = 0
+        order by m.parent_id, m.order_num
+        `;
     } else {
       // [ 1, 2, 3 ] role find
       menus =
-        await prisma.$queryRaw`SELECT menu.* FROM sys_menu menu INNER JOIN sys_role_menu role_menu ON menu.id = role_menu.menu_id where role_menu.role_id IN (${roleIds.join(
-          ',',
-        )}) order by menu.order_num DESC`;
+        await prisma.$queryRaw`SELECT distinct m.menu_id, m.parent_id, m.menu_name, m.path, m.component, m.query, m.visible, m.status, ifnull(m.perms,'') as perms, m.is_frame, m.is_cache, m.menu_type, m.icon, m.order_num, m.create_time
+        from sys_menu m 
+        left join sys_role_menu rm on m.menu_id = rm.menu_id 
+        left join sys_user_role ur on rm.role_id = ur.role_id 
+        left join sys_role ro on ur.role_id = ro.role_id 
+        left join sys_user u on ur.user_id = u.user_id 
+        where u.user_id = ${uid} and m.menu_type in ('M', 'C') and m.status = 0  AND ro.status = 0 
+        order by m.parent_id, m.order_num
+        `;
     }
     return menus;
   }
@@ -188,18 +198,19 @@ export class SysMenuService {
    */
   async getPerms(uid: number): Promise<string[]> {
     const roleIds = await this.roleService.getRoleIdByUser(uid);
-    let perms: any[] = [];
+    let perms: any = [];
     let result: any = null;
     if (includes(roleIds, this.rootRoleId)) {
       // root find all perms
-      result = await prisma.sys_menu.findMany({
-        where: {
-          perms: {
-            not: null,
-          },
-          menuType: '2',
-        },
-      });
+      // result = await prisma.sys_menu.findMany({
+      //   where: {
+      //     perms: {
+      //       not: null,
+      //     },
+      //     menuType: '2',
+      //   },
+      // });
+      return ['*:*:*'];
     } else {
       // result = await this.menuRepository
       //   .createQueryBuilder('menu')
@@ -213,17 +224,21 @@ export class SysMenuService {
       //   .andWhere('menu.perms IS NOT NULL')
       //   .getMany();
       result =
-        await prisma.$queryRaw`SELECT * FROM sys_menu menu INNER JOIN sys_role_menu role_menu ON menu.id = role_menu.menu_id where role_menu.role_id IN (${roleIds.join(
+        await prisma.$queryRaw`SELECT distinct menu.perms FROM sys_menu menu LEFT JOIN sys_role_menu role_menu ON menu.menu_id = role_menu.menu_id where role_menu.role_id IN (${roleIds.join(
           ',',
-        )}) and menu.type = 2 and  menu.perms IS NOT NULL`;
+        )}) and menu.status = '0' and  menu.perms IS NOT NULL`;
+      if (!isEmpty(result)) {
+        result.forEach((e) => {
+          if (e && e.perms) {
+            perms = concat(perms, e.perms);
+          }
+        });
+        // perms = uniq(perms);
+      }
+      // console.log(perms);
+      return perms;
     }
-    if (!isEmpty(result)) {
-      result.forEach((e) => {
-        perms = concat(perms, e.perms.split(','));
-      });
-      perms = uniq(perms);
-    }
-    return perms;
+    // return result || perms;
   }
 
   /**

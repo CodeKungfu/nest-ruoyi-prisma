@@ -1,8 +1,5 @@
 // import { LoggerModuleOptions as LoggerConfigOptions } from 'src/shared/logger/logger.interface';
-declare type LoggerOptions =
-  | boolean
-  | 'all'
-  | ('query' | 'schema' | 'error' | 'warn' | 'info' | 'log' | 'migration')[];
+declare type LoggerOptions = boolean | 'all' | ('query' | 'schema' | 'error' | 'warn' | 'info' | 'log' | 'migration')[];
 /**
  * 用于智能提示
  */

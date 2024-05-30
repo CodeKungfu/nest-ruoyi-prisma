@@ -1,8 +1,9 @@
-import { Body, Controller, Get, Post, Query, Param, Put, Delete, UseInterceptors, Res, StreamableFile } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query, Param, Delete, Put, UseInterceptors, Res, StreamableFile } from '@nestjs/common';
 import { ApiOperation, ApiOkResponse, ApiSecurity, ApiTags } from '@nestjs/swagger';
 import { Keep, RequiresPermissions } from 'src/common/decorators';
 import { ExcelFileCleanupInterceptor } from 'src/common/interceptors/excel.interceptor';
 import { Service } from './service';
+import { PageDto$Dict } from './dto';
 import { keyStr, controllerName, ADMIN_PREFIX } from './config';
 
 @ApiSecurity(ADMIN_PREFIX)
@@ -11,30 +12,27 @@ import { keyStr, controllerName, ADMIN_PREFIX } from './config';
 export class MyController {
   constructor(private service: Service) {}
 
-  /**
-   * 获取岗位列表
-   */
-  @RequiresPermissions('system:post:list')
+  @RequiresPermissions('system:dict:list')
   @ApiOperation({ summary: `分页查询${keyStr}` })
-  @Keep()
+  @ApiOkResponse()
   @Get('list')
-  async page(@Query() dto: any): Promise<any> {
-    const rows = await this.service.pageDto(dto);
+  async page(@Query() dto: PageDto$Dict): Promise<any> {
+    const rows = await this.service.page(dto.pageNum - 1, dto.pageSize);
+    const count = await this.service.count();
     return {
-      rows: rows.result,
-      total: rows.countNum,
+      rows,
       pagination: {
         size: dto.pageSize,
         page: dto.pageNum,
-        total: rows.countNum,
+        total: count,
       },
     };
   }
 
   /**
-   * 导出用户列表
+   * 导出
    */
-  @RequiresPermissions('system:post:export')
+  @RequiresPermissions('system:dict:export')
   @ApiOperation({ summary: `导出` })
   @UseInterceptors(ExcelFileCleanupInterceptor)
   @Post('export')
@@ -47,21 +45,23 @@ export class MyController {
   }
 
   /**
-   * 根据岗位编号获取详细信息
+   * 查询字典类型详细
    */
-  @RequiresPermissions('system:post:query')
+  @RequiresPermissions('system:dict:query')
   @ApiOperation({ summary: `查询${keyStr}` })
   @ApiOkResponse()
   @Get(':id')
-  async info1(@Param() params: any): Promise<any> {
+  async info(@Param() params: any): Promise<any> {
     const list = await this.service.info(params.id);
-    return list;
+    return {
+      ...list,
+    };
   }
 
   /**
-   * 新增岗位
+   * 新增字典类型
    */
-  @RequiresPermissions('system:post:add')
+  @RequiresPermissions('system:dict:add')
   @ApiOperation({ summary: `查询${keyStr}` })
   @ApiOkResponse()
   @Post()
@@ -71,9 +71,9 @@ export class MyController {
   }
 
   /**
-   * 修改岗位
+   * 修改字典类型
    */
-  @RequiresPermissions('system:post:edit')
+  @RequiresPermissions('system:dict:edit')
   @ApiOperation({ summary: `查询${keyStr}` })
   @ApiOkResponse()
   @Put()
@@ -83,14 +83,27 @@ export class MyController {
   }
 
   /**
-   * 删除岗位
+   * 删除字典类型
    */
-  @RequiresPermissions('system:post:remove')
+  @RequiresPermissions('system:dict:remove')
   @ApiOperation({ summary: `查询${keyStr}` })
   @ApiOkResponse()
   @Delete(':id')
   async delete(@Param() params: any): Promise<any> {
     const list = await this.service.delete(params.id);
     return list;
+  }
+
+  /**
+   * 获取字典选择框列表
+   */
+  @ApiOperation({ summary: `查询${keyStr}` })
+  @ApiOkResponse()
+  @Get('optionselect')
+  async optionselect(): Promise<any> {
+    const list = await this.service.optionselect();
+    return {
+      ...list,
+    };
   }
 }

@@ -26,7 +26,6 @@ export interface RedisModuleOptions extends RedisOptions {
    * cluster options, using cluster is true
    */
   clusterOptions?: ClusterOptions;
-
   /**
    * callback
    */

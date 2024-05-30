@@ -1,14 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { ApiException } from 'src/common/exceptions/api.exception';
-import {
-  difference,
-  filter,
-  includes,
-  isEmpty,
-  map,
-  findIndex,
-  omit,
-} from 'lodash';
+import { difference, filter, includes, isEmpty, map, findIndex, omit } from 'lodash';
 import { prisma } from 'src/prisma';
 import { tableType, tableName } from './config';
 

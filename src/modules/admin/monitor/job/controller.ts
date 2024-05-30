@@ -1,19 +1,5 @@
-import {
-  Body,
-  Controller,
-  Get,
-  Post,
-  Query,
-  Param,
-  Put,
-  Delete,
-} from '@nestjs/common';
-import {
-  ApiOperation,
-  ApiOkResponse,
-  ApiSecurity,
-  ApiTags,
-} from '@nestjs/swagger';
+import { Body, Controller, Get, Post, Query, Param, Put, Delete } from '@nestjs/common';
+import { ApiOperation, ApiOkResponse, ApiSecurity, ApiTags } from '@nestjs/swagger';
 import { Keep } from 'src/common/decorators/keep.decorator';
 import { ADMIN_PREFIX } from 'src/modules/admin/admin.constants';
 import { Service } from './service';

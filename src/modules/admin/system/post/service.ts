@@ -1,21 +1,14 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { ApiException } from 'src/common/exceptions/api.exception';
-import {
-  difference,
-  filter,
-  includes,
-  isEmpty,
-  map,
-  findIndex,
-  omit,
-} from 'lodash';
+import { ExcelService } from 'src/shared/services/excel.service';
+import { difference, filter, includes, isEmpty, map, findIndex, omit } from 'lodash';
 import { prisma } from 'src/prisma';
 import { tableType, tableName } from './config';
 
 @Injectable()
 export class Service {
   // eslint-disable-next-line @typescript-eslint/no-empty-function
-  constructor() {}
+  constructor(private excelService: ExcelService) {}
 
   /**
    * 根据获取信息
@@ -86,5 +79,19 @@ export class Service {
       result,
       countNum,
     };
+  }
+
+  /**
+   * 导出
+   */
+  async pageDtoExport(dto: any) {
+    const queryObj = omit(dto, ['pageNum', 'pageSize']);
+    const result: any = await prisma[tableName].findMany({
+      skip: (Number(dto.pageNum) - 1) * Number(dto.pageSize),
+      take: Number(dto.pageSize),
+      where: queryObj,
+    });
+    
+    return this.excelService.createExcelFile('target', result);
   }
 }

@@ -1,23 +1,8 @@
-import {
-  Body,
-  Controller,
-  Get,
-  Post,
-  Query,
-  Param,
-  Put,
-  Delete,
-} from '@nestjs/common';
-import {
-  ApiOperation,
-  ApiOkResponse,
-  ApiSecurity,
-  ApiTags,
-} from '@nestjs/swagger';
-import { Keep } from 'src/common/decorators/keep.decorator';
-import { ADMIN_PREFIX } from 'src/modules/admin/admin.constants';
+import { Body, Controller, Get, Post, Query, Param, Put, Delete } from '@nestjs/common';
+import { ApiOperation, ApiOkResponse, ApiSecurity, ApiTags } from '@nestjs/swagger';
+import { Keep, RequiresPermissions } from 'src/common/decorators';
 import { Service } from './service';
-import { keyStr, controllerName } from './config';
+import { keyStr, controllerName, ADMIN_PREFIX } from './config';
 
 @ApiSecurity(ADMIN_PREFIX)
 @ApiTags(`${keyStr}模块`)
@@ -25,6 +10,10 @@ import { keyStr, controllerName } from './config';
 export class MyController {
   constructor(private service: Service) {}
 
+  /**
+   * 获取通知公告列表
+   */
+  @RequiresPermissions('system:notice:list')
   @ApiOperation({ summary: `分页查询${keyStr}` })
   @Keep()
   @Get('list')
@@ -41,6 +30,10 @@ export class MyController {
     };
   }
 
+  /**
+   * 根据通知公告编号获取详细信息
+   */
+  @RequiresPermissions('system:notice:query')
   @ApiOperation({ summary: `查询${keyStr}` })
   @ApiOkResponse()
   @Get(':id')
@@ -49,14 +42,22 @@ export class MyController {
     return list;
   }
 
+  /**
+   * 新增通知公告
+   */
+  @RequiresPermissions('system:notice:add')
   @ApiOperation({ summary: `查询${keyStr}` })
   @ApiOkResponse()
-  @Delete(':id')
-  async delete(@Param() params: any): Promise<any> {
-    const list = await this.service.delete(params.id);
+  @Post()
+  async create(@Body() body: any): Promise<any> {
+    const list = await this.service.create(body);
     return list;
   }
 
+  /**
+   * 修改通知公告
+   */
+  @RequiresPermissions('system:notice:edit')
   @ApiOperation({ summary: `查询${keyStr}` })
   @ApiOkResponse()
   @Put()
@@ -65,11 +66,15 @@ export class MyController {
     return list;
   }
 
+  /**
+   * 删除通知公告
+   */
+  @RequiresPermissions('system:notice:remove')
   @ApiOperation({ summary: `查询${keyStr}` })
   @ApiOkResponse()
-  @Post()
-  async create(@Body() body: any): Promise<any> {
-    const list = await this.service.create(body);
+  @Delete(':id')
+  async delete(@Param() params: any): Promise<any> {
+    const list = await this.service.delete(params.id);
     return list;
   }
 }

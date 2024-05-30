@@ -24,15 +24,11 @@ import { WinstonLogLevel } from './shared/logger/logger.interface';
         useFactory: (configService: ConfigService) => {
           return {
             level: configService.get<WinstonLogLevel>('logger.level'),
-            consoleLevel: configService.get<WinstonLogLevel>(
-              'logger.consoleLevel',
-            ),
+            consoleLevel: configService.get<WinstonLogLevel>('logger.consoleLevel'),
             timestamp: configService.get<boolean>('logger.timestamp'),
             maxFiles: configService.get<string>('logger.maxFiles'),
             maxFileSize: configService.get<string>('logger.maxFileSize'),
-            disableConsoleAtProd: configService.get<boolean>(
-              'logger.disableConsoleAtProd',
-            ),
+            disableConsoleAtProd: configService.get<boolean>('logger.disableConsoleAtProd'),
             dir: configService.get<string>('logger.dir'),
             errorLogName: configService.get<string>('logger.errorLogName'),
             appLogName: configService.get<string>('logger.appLogName'),

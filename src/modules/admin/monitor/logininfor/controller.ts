@@ -1,23 +1,8 @@
-import {
-  Body,
-  Controller,
-  Get,
-  Post,
-  Query,
-  Param,
-  Put,
-  Delete,
-} from '@nestjs/common';
-import {
-  ApiOperation,
-  ApiOkResponse,
-  ApiSecurity,
-  ApiTags,
-} from '@nestjs/swagger';
-import { Keep } from 'src/common/decorators/keep.decorator';
-import { ADMIN_PREFIX } from 'src/modules/admin/admin.constants';
+import { Body, Controller, Get, Post, Query, Param, Put, Delete } from '@nestjs/common';
+import { ApiOperation, ApiOkResponse, ApiSecurity, ApiTags } from '@nestjs/swagger';
+import { Keep, RequiresPermissions } from 'src/common/decorators';
 import { Service } from './service';
-import { keyStr, controllerName } from './config';
+import { keyStr, controllerName, ADMIN_PREFIX } from './config';
 
 @ApiSecurity(ADMIN_PREFIX)
 @ApiTags(`${keyStr}模块`)
@@ -25,6 +10,7 @@ import { keyStr, controllerName } from './config';
 export class MyController {
   constructor(private service: Service) {}
 
+  @RequiresPermissions("system:logininfor:list")
   @ApiOperation({ summary: `分页查询${keyStr}` })
   @Keep()
   @Get('list')

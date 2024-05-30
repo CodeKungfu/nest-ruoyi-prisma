@@ -6,9 +6,10 @@ import { JwtModule } from '@nestjs/jwt';
 import { RedisModule } from './redis/redis.module';
 import { RedisService } from './services/redis.service';
 import { UtilService } from './services/util.service';
+import { ExcelService } from './services/excel.service';
 
 // common provider list
-const providers = [UtilService, RedisService];
+const providers = [UtilService, RedisService, ExcelService];
 
 /**
  * 全局共享模块

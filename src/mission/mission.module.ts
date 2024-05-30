@@ -5,7 +5,6 @@ import { HttpRequestJob } from './jobs/http-request.job';
 import { SysLogClearJob } from './jobs/sys-log-clear.job';
 
 const providers = [SysLogClearJob, HttpRequestJob];
-
 /**
  * auto create alias
  * {
@@ -23,7 +22,6 @@ function createAliasProviders(): ExistingProvider[] {
   }
   return aliasProviders;
 }
-
 /**
  * 所有需要执行的定时任务都需要在这里注册
  */

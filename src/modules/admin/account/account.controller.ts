@@ -1,10 +1,5 @@
 import { Body, Controller, Get, Post, Req } from '@nestjs/common';
-import {
-  ApiOkResponse,
-  ApiOperation,
-  ApiSecurity,
-  ApiTags,
-} from '@nestjs/swagger';
+import { ApiOkResponse, ApiOperation, ApiSecurity, ApiTags } from '@nestjs/swagger';
 import { ADMIN_PREFIX } from 'src/modules/admin/admin.constants';
 import { FastifyRequest } from 'fastify';
 import { UtilService } from 'src/shared/services/util.service';
@@ -22,54 +17,35 @@ import { UpdatePersonInfoDto } from './account.dto';
 @ApiSecurity(ADMIN_PREFIX)
 @Controller()
 export class AccountController {
-  constructor(
-    private userService: SysUserService,
-    private loginService: LoginService,
-    private utils: UtilService,
-  ) {}
+  constructor(private userService: SysUserService, private loginService: LoginService, private utils: UtilService) {}
 
   @ApiOperation({ summary: '获取管理员资料' })
   @ApiOkResponse({ type: AccountInfo })
   @PermissionOptional()
   @Get('info')
-  async info(
-    @AdminUser() user: IAdminUser,
-    @Req() req: FastifyRequest,
-  ): Promise<AccountInfo> {
-    return await this.userService.getAccountInfo(
-      user.uid,
-      this.utils.getReqIP(req),
-    );
+  async info(@AdminUser() user: IAdminUser, @Req() req: FastifyRequest): Promise<AccountInfo> {
+    return await this.userService.getAccountInfo(user.uid, this.utils.getReqIP(req));
   }
 
   @ApiOperation({ summary: '获取管理员资料' })
   @ApiOkResponse({ type: AccountInfo })
   @PermissionOptional()
   @Get('getInfo')
-  async getInfo(
-    @AdminUser() user: IAdminUser,
-    @Req() req: FastifyRequest,
-  ): Promise<any> {
+  async getInfo(@AdminUser() user: IAdminUser, @Req() req: FastifyRequest): Promise<any> {
     return await this.userService.getInfo(user.uid, this.utils.getReqIP(req));
   }
 
   @ApiOperation({ summary: '更改管理员资料' })
   @PermissionOptional()
   @Post('update')
-  async update(
-    @Body() dto: UpdatePersonInfoDto,
-    @AdminUser() user: IAdminUser,
-  ): Promise<void> {
+  async update(@Body() dto: UpdatePersonInfoDto, @AdminUser() user: IAdminUser): Promise<void> {
     await this.userService.updatePersonInfo(user.uid, dto);
   }
 
   @ApiOperation({ summary: '更改管理员密码' })
   @PermissionOptional()
   @Post('password')
-  async password(
-    @Body() dto: UpdatePasswordDto,
-    @AdminUser() user: IAdminUser,
-  ): Promise<void> {
+  async password(@Body() dto: UpdatePasswordDto, @AdminUser() user: IAdminUser): Promise<void> {
     await this.userService.updatePassword(user.uid, dto);
   }
 

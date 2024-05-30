@@ -1,15 +1,9 @@
 import { Module } from '@nestjs/common';
 import { BullModule } from '@nestjs/bull';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import {
-  ROOT_ROLE_ID,
-  SYS_TASK_QUEUE_NAME,
-  SYS_TASK_QUEUE_PREFIX,
-} from 'src/modules/admin/admin.constants';
+import { ROOT_ROLE_ID, SYS_TASK_QUEUE_NAME, SYS_TASK_QUEUE_PREFIX } from 'src/modules/admin/admin.constants';
 import { WSModule } from 'src/modules/ws/ws.module';
 import { rootRoleIdProvider } from '../core/provider/root-role-id.provider';
-import { SysDeptController } from './deptBack/dept.controller';
-import { SysDeptService } from './deptBack/dept.service';
 import { SysLogController } from './log/log.controller';
 import { SysLogService } from './log/log.service';
 import { SysMenuController } from './menuBack/menu.controller';
@@ -26,8 +20,8 @@ import { SysOnlineService } from './online/online.service';
 import { SysServeController } from './serve/serve.controller';
 import { SysServeService } from './serve/serve.service';
 
-import * as dictController from './dict/controller';
-import * as dictService from './dict/service';
+import * as dictController from './dictType/controller';
+import * as dictService from './dictType/service';
 
 import * as dictDataController from './dictData/controller';
 import * as dictDataService from './dictData/service';
@@ -70,7 +64,6 @@ import * as menuService from './menu/service';
     SysRoleController,
     SysMenuController,
     menuController.MyController,
-    SysDeptController,
     deptController.MyController,
     SysLogController,
     SysTaskController,
@@ -88,7 +81,6 @@ import * as menuService from './menu/service';
     SysRoleService,
     SysMenuService,
     menuService.Service,
-    SysDeptService,
     deptService.Service,
     SysLogService,
     SysTaskService,
@@ -101,12 +93,6 @@ import * as menuService from './menu/service';
     noticeService.Service,
     postService.Service,
   ],
-  exports: [
-    ROOT_ROLE_ID,
-    SysUserService,
-    SysMenuService,
-    SysLogService,
-    SysOnlineService,
-  ],
+  exports: [ROOT_ROLE_ID, SysUserService, SysMenuService, SysLogService, SysOnlineService],
 })
 export class SystemModule {}

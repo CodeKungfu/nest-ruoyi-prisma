@@ -9,10 +9,7 @@ import { Mission } from '../mission.decorator';
 @Injectable()
 @Mission()
 export class HttpRequestJob {
-  constructor(
-    private readonly httpService: HttpService,
-    private readonly logger: LoggerService,
-  ) {}
+  constructor(private readonly httpService: HttpService, private readonly logger: LoggerService) {}
 
   /**
    * 发起请求

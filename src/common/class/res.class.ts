@@ -1,10 +1,5 @@
 import { applyDecorators, Type } from '@nestjs/common';
-import {
-  ApiExtraModels,
-  ApiOkResponse,
-  ApiProperty,
-  getSchemaPath,
-} from '@nestjs/swagger';
+import { ApiExtraModels, ApiOkResponse, ApiProperty, getSchemaPath } from '@nestjs/swagger';
 
 export class ResponseDto<T> {
   readonly data: T;
@@ -44,13 +39,7 @@ export class PaginatedResponseDto<T> {
   pagination: Pagination;
 }
 
-export const ApiResponse = <
-  DataDto extends Type<unknown>,
-  WrapperDataDto extends Type<unknown>,
->(
-  dataDto: DataDto,
-  wrapperDataDto: WrapperDataDto,
-) =>
+export const ApiResponse = <DataDto extends Type<unknown>, WrapperDataDto extends Type<unknown>>(dataDto: DataDto, wrapperDataDto: WrapperDataDto) =>
   applyDecorators(
     ApiExtraModels(wrapperDataDto, dataDto),
     ApiOkResponse({
@@ -70,10 +59,6 @@ export const ApiResponse = <
     }),
   );
 
-export const ApiOkResponseData = <DataDto extends Type<unknown>>(
-  dataDto: DataDto,
-) => ApiResponse(dataDto, ResponseDto);
+export const ApiOkResponseData = <DataDto extends Type<unknown>>(dataDto: DataDto) => ApiResponse(dataDto, ResponseDto);
 
-export const ApiOkResponsePaginated = <DataDto extends Type<unknown>>(
-  dataDto: DataDto,
-) => ApiResponse(dataDto, PaginatedResponseDto);
+export const ApiOkResponsePaginated = <DataDto extends Type<unknown>>(dataDto: DataDto) => ApiResponse(dataDto, PaginatedResponseDto);

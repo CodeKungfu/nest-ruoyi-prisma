@@ -1,23 +1,8 @@
-import {
-  Body,
-  Controller,
-  Get,
-  Post,
-  Query,
-  Param,
-  Put,
-  Delete,
-} from '@nestjs/common';
-import {
-  ApiOperation,
-  ApiOkResponse,
-  ApiSecurity,
-  ApiTags,
-} from '@nestjs/swagger';
-import { Keep } from 'src/common/decorators/keep.decorator';
-import { ADMIN_PREFIX } from 'src/modules/admin/admin.constants';
+import { Body, Controller, Get, Post, Param, Put, Delete } from '@nestjs/common';
+import { ApiOperation, ApiOkResponse, ApiSecurity, ApiTags } from '@nestjs/swagger';
+import { Keep, RequiresPermissions } from 'src/common/decorators';
 import { Service } from './service';
-import { keyStr, controllerName } from './config';
+import { keyStr, controllerName, ADMIN_PREFIX } from './config';
 
 @ApiSecurity(ADMIN_PREFIX)
 @ApiTags(`${keyStr}模块`)
@@ -25,22 +10,10 @@ import { keyStr, controllerName } from './config';
 export class MyController {
   constructor(private service: Service) {}
 
-  @ApiOperation({ summary: `分页查询${keyStr}` })
-  @Keep()
-  @Get('page')
-  async page(@Query() dto: any): Promise<any> {
-    const rows = await this.service.pageDto(dto);
-    return {
-      rows: rows.result,
-      total: rows.countNum,
-      pagination: {
-        size: dto.pageSize,
-        page: dto.pageNum,
-        total: rows.countNum,
-      },
-    };
-  }
-
+  /**
+   * 获取部门列表
+   */
+  @RequiresPermissions('system:dept:list')
   @ApiOperation({ summary: `分页查询${keyStr}` })
   @Keep()
   @Get('list')
@@ -51,7 +24,11 @@ export class MyController {
     };
   }
 
-  @ApiOperation({ summary: `分页查询${keyStr}` })
+  /**
+   * 查询部门列表（排除节点）
+   */
+  @RequiresPermissions('system:dept:list')
+  @ApiOperation({ summary: `查询${keyStr}（排除节点）` })
   @Keep()
   @Get('list/exclude/:id')
   async exclude(@Param() params: any): Promise<any> {
@@ -61,6 +38,10 @@ export class MyController {
     };
   }
 
+  /**
+   * 根据部门编号获取详细信息
+   */
+  @RequiresPermissions('system:dept:query')
   @ApiOperation({ summary: `查询${keyStr}` })
   @ApiOkResponse()
   @Get(':id')
@@ -69,14 +50,22 @@ export class MyController {
     return list;
   }
 
+  /**
+   * 新增部门
+   */
+  @RequiresPermissions('system:dept:add')
   @ApiOperation({ summary: `查询${keyStr}` })
   @ApiOkResponse()
-  @Delete(':id')
-  async delete(@Param() params: any): Promise<any> {
-    const list = await this.service.delete(params.id);
+  @Post()
+  async create(@Body() body: any): Promise<any> {
+    const list = await this.service.create(body);
     return list;
   }
 
+  /**
+   * 修改部门
+   */
+  @RequiresPermissions('system:dept:edit')
   @ApiOperation({ summary: `查询${keyStr}` })
   @ApiOkResponse()
   @Put()
@@ -85,11 +74,15 @@ export class MyController {
     return list;
   }
 
+  /**
+   * 删除部门
+   */
+  @RequiresPermissions('system:dept:remove')
   @ApiOperation({ summary: `查询${keyStr}` })
   @ApiOkResponse()
-  @Post()
-  async create(@Body() body: any): Promise<any> {
-    const list = await this.service.create(body);
+  @Delete(':id')
+  async delete(@Param() params: any): Promise<any> {
+    const list = await this.service.delete(params.id);
     return list;
   }
 }

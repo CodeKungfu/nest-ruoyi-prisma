@@ -52,7 +52,8 @@
     "systeminformation": "^5.22.7",
     "ua-parser-js": "^1.0.37",
     "winston": "^3.11.0",
-    "wrap-ansi": "^9.0.0"
+    "wrap-ansi": "^9.0.0",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@nestjs/cli": "^10.0.1",
