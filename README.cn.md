@@ -5,6 +5,8 @@
 	<a href="https://github.com/CodeKungfu/ruoyi-vue3/blob/master/LICENSE"><img src="https://img.shields.io/github/license/mashape/apistatus.svg"></a>
 </p>
 
+[English](https://github.com/CodeKungfu/nest-ruoyi-prisma/README.md) | 简体中文
+
 # 用nodejs（nestjs） 重写若依cms
 
 本项目代码是个人开发，未经大量测试和专业测试，不建议用于生产环境。
