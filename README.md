@@ -28,6 +28,8 @@ git clone https://github.com/CodeKungfu/nest-ruoyi-prisma.git
 # Enter the project directory
 cd nest-ruoyi-prisma
 
+# Install the ry_20231130.sql file located in the deploy directory into your specified MySQL database
+
 # Create a new .env file and make corresponding environment variable modifications according to .env.example (It's strongly recommended not to use default username and password for environment variables to avoid unnecessary trouble)
 
 mv .env.example .env
@@ -68,7 +70,7 @@ yarn dev
 ## System Modules
 
 ~~~
-├──prisma                                             // Prisma schema
+prisma                                             // Prisma schema
 src     
 ├── common                                            // Common module
 ├── config                                            // Configuration module
@@ -80,4 +82,4 @@ src
 │       └── logger                                    // Logging module
 │       └── redis                                     // Redis
 │       └── services                                  // Shared services
-├──package.json                                       // Common dependencies
+package.json                                       // Common dependencies

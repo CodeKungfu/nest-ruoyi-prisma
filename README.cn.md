@@ -27,6 +27,8 @@ git clone https://github.com/CodeKungfu/nest-ruoyi-prisma.git
 # 进入项目目录
 cd nest-ruoyi-prisma
 
+# 把 deploy目录的ry_20231130.sql 安装到你指定的mysql 数据库
+
 # 新建.env 按照.env.example 进行相应的环境变量修改(强烈建议不使用环境变量的默认用户名密码,避免不必要麻烦)
 
 mv .env.example .env

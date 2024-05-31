@@ -8,7 +8,7 @@
 
 The code of this project is developed individually and has not undergone extensive or professional testing. It is not recommended for use in a production environment.
 
-## 平台简介
+## Platform Introduction
 
 Special thanks to the original developer of Ruoyi for their generous open-source contribution and to my partners for their support. Their encouragement has greatly motivated me to develop a Node.js-based version of Ruoyi. The project is currently in an early stage (Work in Progress). Suggestions, issues, and Pull Requests are welcome.
 
@@ -19,7 +19,7 @@ The Java version of Ruoyi is a popular rapid development platform, but for devel
 * The back end uses NestJS (Node.js) + Prisma + MySQL + Redis.
 * The technology stack includes [Vue 3](https://v3.cn.vuejs.org), [Element Plus](https://element-plus.org/zh-CN), and [Vite](https://cn.vitejs.dev). The project version [RuoYi-Vue3](https://github.com/CodeKungfu/ruoyi-vue3) is kept in sync with updates.
 
-## 程序运行
+## Program Execution
 
 ```bash
 # Clone the project
@@ -27,6 +27,8 @@ git clone https://github.com/CodeKungfu/nest-ruoyi-prisma.git
 
 # Enter the project directory
 cd nest-ruoyi-prisma
+
+# Install the ry_20231130.sql file located in the deploy directory into your specified MySQL database
 
 # Create a new .env file and make corresponding environment variable modifications according to .env.example (It's strongly recommended not to use default username and password for environment variables to avoid unnecessary trouble)
 
@@ -68,7 +70,7 @@ yarn dev
 ## System Modules
 
 ~~~
-├──prisma                                             // Prisma schema
+prisma                                             // Prisma schema
 src     
 ├── common                                            // Common module
 ├── config                                            // Configuration module
@@ -80,4 +82,4 @@ src
 │       └── logger                                    // Logging module
 │       └── redis                                     // Redis
 │       └── services                                  // Shared services
-├──package.json                                       // Common dependencies
+package.json                                       // Common dependencies
