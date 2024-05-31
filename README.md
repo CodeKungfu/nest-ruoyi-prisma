@@ -4,7 +4,7 @@
 	<a href="https://github.com/CodeKungfu/ruoyi-vue3/blob/master/LICENSE"><img src="https://img.shields.io/github/license/mashape/apistatus.svg"></a>
 </p>
 
-English | [简体中文](https://github.com/CodeKungfu/nest-ruoyi-prisma/README.cn.md)
+English | [简体中文](https://github.com/CodeKungfu/nest-ruoyi-prisma/blob/main/README.cn.md)
 
 # Rewrite the Ruoyi CMS using Node.js (NestJS)
 
