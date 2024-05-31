@@ -11,8 +11,8 @@ import * as operlogService from './operlog/service';
 import * as logininforController from './logininfor/controller';
 import * as logininforService from './logininfor/service';
 
-import * as onlineController from './online/controller';
-import * as onlineService from './online/service';
+// import * as onlineController from './online/controller';
+// import * as onlineService from './online/service';
 
 import * as jobController from './job/controller';
 import * as jobService from './job/service';
@@ -39,7 +39,7 @@ import * as jobService from './job/service';
     // dictController.MyController,
     // dictDataController.MyController,
     jobController.MyController,
-    onlineController.MyController,
+    // onlineController.MyController,
     logininforController.MyController,
     operlogController.MyController,
   ],
@@ -48,7 +48,7 @@ import * as jobService from './job/service';
     // dictService.Service,
     // dictDataService.Service,
     jobService.Service,
-    onlineService.Service,
+    // onlineService.Service,
     logininforService.Service,
     operlogService.Service,
   ],
