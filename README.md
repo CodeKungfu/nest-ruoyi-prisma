@@ -1,5 +1,6 @@
 <h1 align="center" style="margin: 30px 0 30px; font-weight: bold;">RuoYiNode v0.1.0</h1>
 <h4 align="center">A rapid development framework for Node.js based on NestJS and Vue 3 with front-end and back-end separation (WIP)</h4>
+<h5>[中文文档](https://github.com/CodeKungfu/nest-ruoyi-prisma/README.cn.md)</h5>
 <p align="center">
 	<a href="https://github.com/CodeKungfu/ruoyi-vue3/blob/master/LICENSE"><img src="https://img.shields.io/github/license/mashape/apistatus.svg"></a>
 </p>
