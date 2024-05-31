@@ -14,18 +14,19 @@ export class MyController {
 
   @RequiresPermissions('system:dict:list')
   @ApiOperation({ summary: `分页查询${keyStr}` })
-  @ApiOkResponse()
+  @Keep()
   @Get('list')
   async page(@Query() dto: PageDto$Dict): Promise<any> {
     const rows = await this.service.page(dto.pageNum - 1, dto.pageSize);
     const count = await this.service.count();
     return {
       rows,
-      pagination: {
-        size: dto.pageSize,
-        page: dto.pageNum,
-        total: count,
-      },
+      total: count,
+      // pagination: {
+      //   size: dto.pageSize,
+      //   page: dto.pageNum,
+      //   total: count,
+      // },
     };
   }
 
